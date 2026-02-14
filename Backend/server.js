@@ -12,11 +12,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Mongo connect
+// MongoDB connect
 await mongoose.connect(process.env.MONGO_URI);
 console.log("MongoDB Connected ✅");
 
-// ROOT ROUTE (PUT THIS EARLY)
+// Root
 app.get("/", (req, res) => {
   res.send("Drone Telemetry API Running 🚁");
 });
@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 // Telemetry routes
 app.use("/telemetry", telemetryRoutes);
 
-// 404 handler (ALWAYS LAST)
+// 404
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found." });
 });

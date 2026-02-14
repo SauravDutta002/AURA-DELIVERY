@@ -5,34 +5,49 @@ const router = express.Router();
 
 const API_KEY = process.env.API_KEY;
 
-// AUTH middleware
+// 🔐 API KEY MIDDLEWARE
 router.use((req, res, next) => {
-  if (req.headers["x-api-key"] !== API_KEY)
+  if (req.headers["x-api-key"] !== API_KEY) {
     return res.status(401).json({ error: "Unauthorized" });
+  }
   next();
 });
 
-// POST telemetry
+
+// 📡 POST TELEMETRY (Pi sends)
 router.post("/", async (req, res) => {
-  const data = await Telemetry.create(req.body);
-  res.json({ status: "saved", id: data._id });
+  try {
+    const { droneId, lat, lon, alt } = req.body;
+
+    if (!droneId || lat == null || lon == null) {
+      return res.status(400).json({ error: "Missing fields" });
+    }
+
+    await Telemetry.create({ droneId, lat, lon, alt });
+
+    res.json({ status: "saved" });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// GET latest
-router.get("/latest/:droneId", async (req, res) => {
+
+// 🛰️ GET FULL ROUTE
+router.get("/route/:droneId", async (req, res) => {
   const data = await Telemetry
-    .findOne({ droneId: req.params.droneId })
-    .sort({ timestamp: -1 });
+    .find({ droneId: req.params.droneId })
+    .sort({ timestamp: 1 });
 
   res.json(data);
 });
 
-// GET route
-router.get("/route/:droneId", async (req, res) => {
+
+// 📍 GET LATEST LOCATION
+router.get("/latest/:droneId", async (req, res) => {
   const data = await Telemetry
-    .find({ droneId: req.params.droneId })
-    .sort({ timestamp: -1 })
-    .limit(1000);
+    .findOne({ droneId: req.params.droneId })
+    .sort({ timestamp: -1 });
 
   res.json(data);
 });
