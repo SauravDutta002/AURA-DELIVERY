@@ -3,6 +3,7 @@ import { FaLocationCrosshairs } from "react-icons/fa6"
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from "react-icons/md"
 import { HiHome } from "react-icons/hi2"
 import { PiWarehouseFill, PiFlyingSaucerFill } from "react-icons/pi"
+import Loader from "./Loader"
 
 const FloatingInfoCard = ({ onLocation }) => {
   const [progress, setProgress] = useState(0)
@@ -45,6 +46,8 @@ const FloatingInfoCard = ({ onLocation }) => {
       style={open ? { height: contentRef.current?.scrollHeight } : {}}
     >
       {/* Handle */}
+      {/* <Loader/> */}
+      
       <div
         onClick={() => setOpen(!open)}
         className="w-full flex flex-col items-center pt-2 cursor-pointer"
