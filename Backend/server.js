@@ -18,7 +18,7 @@ console.log("MongoDB Connected ✅");
 
 // Root
 app.get("/", (req, res) => {
-  res.send("Drone Telemetry API Running 🚁");
+  res.send("Drone Telemetry API UPDATED");
 });
 
 // Telemetry routes
