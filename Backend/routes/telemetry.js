@@ -20,27 +20,28 @@ router.post("/", async (req, res) => {
     const { droneId, lat, lon, alt } = req.body;
 
     if (!droneId) {
-      return res.status(400).json({ error: "droneId required" });
+      return res.status(400).json({ error: "droneId missing" });
     }
 
-    const updated = await Telemetry.findOneAndUpdate(
-      { droneId: droneId },   // find existing drone
-
+    await Telemetry.findOneAndUpdate(
+      { droneId },
       {
-        lat: lat,
-        lon: lon,
-        alt: alt,
+        droneId,
+        lat,
+        lon,
+        alt,
         timestamp: new Date()
       },
       {
-        new: true,
-        upsert: true           // create if not exists
+        upsert: true,
+        returnDocument: "after"
       }
     );
 
-    res.json({ status: "updated", data: updated });
+    res.json({ status: "updated" });
 
   } catch (err) {
+    console.error("POST ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
