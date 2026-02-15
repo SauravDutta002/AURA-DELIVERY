@@ -19,18 +19,32 @@ router.post("/", async (req, res) => {
   try {
     const { droneId, lat, lon, alt } = req.body;
 
-    if (!droneId || lat == null || lon == null) {
-      return res.status(400).json({ error: "Missing fields" });
+    if (!droneId) {
+      return res.status(400).json({ error: "droneId required" });
     }
 
-    await Telemetry.create({ droneId, lat, lon, alt });
+    const updated = await Telemetry.findOneAndUpdate(
+      { droneId: droneId },   // find existing drone
+      {
+        lat: lat,
+        lon: lon,
+        alt: alt,
+        timestamp: new Date()
+      },
+      {
+        new: true,
+        upsert: true           // create if not exists
+      }
+    );
 
-    res.json({ status: "saved" });
+    res.json({ status: "updated", data: updated });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
+
 
 
 // 🛰️ GET FULL ROUTE
