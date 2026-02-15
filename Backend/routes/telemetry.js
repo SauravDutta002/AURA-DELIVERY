@@ -25,6 +25,7 @@ router.post("/", async (req, res) => {
 
     const updated = await Telemetry.findOneAndUpdate(
       { droneId: droneId },   // find existing drone
+
       {
         lat: lat,
         lon: lon,
