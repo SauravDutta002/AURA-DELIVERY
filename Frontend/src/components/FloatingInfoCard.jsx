@@ -1,165 +1,162 @@
-import React, { useEffect, useRef, useState } from "react"
-import { FaLocationCrosshairs } from "react-icons/fa6"
+import React, { useState, useRef } from "react"
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from "react-icons/md"
 import { HiHome } from "react-icons/hi2"
 import { PiWarehouseFill, PiFlyingSaucerFill } from "react-icons/pi"
 import Loader from "./Loader"
 
-const FloatingInfoCard = ({ onLocation }) => {
+const API_URL = "https://aura-delivery-1.onrender.com"
+const DRONE_ID = "DRONE001"
+
+const FloatingInfoCard = ({ onBooked, onConfirmed }) => {
   const [progress, setProgress] = useState(0)
-  const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(true)
+
+  const [booking, setBooking] = useState(false)
+  const [booked, setBooked] = useState(false)
+
+  const [confirming, setConfirming] = useState(false)
+  const [confirmed, setConfirmed] = useState(false)
+
   const contentRef = useRef(null)
 
-  useEffect(() => {
-    if (!loading) return
-    setProgress(0)
-    const interval = setInterval(() => {
-      setProgress((p) => (p >= 100 ? 100 : p + 1))
-    }, 28)
-    return () => clearInterval(interval)
-  }, [loading])
+  /* ================= BOOK DRONE ================= */
+  const bookDrone = async () => {
+    setBooking(true)
 
-  const getLiveLocation = () => {
-    if (!navigator.geolocation) return alert("Geolocation not supported")
-    setLoading(true)
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLoading(false)
-        const { latitude, longitude } = pos.coords
-        onLocation && onLocation([latitude, longitude])
-      },
-      () => {
-        setLoading(false)
-        alert("Location access denied")
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    )
+    await fetch(`${API_URL}/drone/book/${DRONE_ID}`, {
+      method: "POST"
+    })
+
+    setTimeout(() => {
+      setBooking(false)
+      setBooked(true)
+      onBooked && onBooked()
+    }, 2000)
+  }
+
+  /* ================= CONFIRM ================= */
+  const confirmOrder = async () => {
+    setConfirming(true)
+
+    await fetch(`${API_URL}/drone/confirm/${DRONE_ID}`, {
+      method: "POST"
+    })
+
+    setTimeout(() => {
+      setConfirming(false)
+      setConfirmed(true)
+      onConfirmed && onConfirmed()
+
+      // progress animation
+      let p = 0
+      const int = setInterval(()=>{
+        p+=5
+        setProgress(p)
+        if(p>=100) clearInterval(int)
+      },150)
+
+    },1500)
   }
 
   return (
-    <div
-      className={`fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-xl
-      bg-white rounded-t-[2.5rem] shadow-[0_-14px_50px_rgba(0,0,0,0.12)]
-      z-30 transition-all duration-500 ease-[cubic-bezier(.22,1,.36,1)] overflow-hidden
-      ${open ? "max-h-[75vh]" : "h-24"}`}
-      style={open ? { height: contentRef.current?.scrollHeight } : {}}
-    >
+    <div className={`fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-xl
+      bg-white rounded-t-[2.5rem] shadow-xl z-50 overflow-hidden`}>
+
       {/* Handle */}
-      {/* <Loader/> */}
-      
-      <div
-        onClick={() => setOpen(!open)}
-        className="w-full flex flex-col items-center pt-2 cursor-pointer"
-      >
-        <div className="w-12 h-1 bg-gray-300 rounded-full mb-1" />
-        {open ? (
-          <MdKeyboardArrowDown size={22} className="text-gray-400" />
-        ) : (
-          <MdKeyboardArrowUp size={22} className="text-gray-400" />
-        )}
+      <div onClick={()=>setOpen(!open)}
+        className="w-full flex flex-col items-center pt-2 cursor-pointer">
+        <div className="w-12 h-1 bg-gray-300 rounded-full mb-1"/>
+        {open ? <MdKeyboardArrowDown/> : <MdKeyboardArrowUp/>}
       </div>
 
-      {/* Content */}
       <div ref={contentRef} className="px-6 pb-10 flex flex-col gap-8">
-        {/* Progress */}
+
+        {/* PROGRESS */}
         <div>
-          <div className="flex justify-between items-center text-xs text-gray-400 mb-2">
-            <PiWarehouseFill className="text-2xl text-yellow-400" />
+          <div className="flex justify-between text-xs text-gray-400 mb-2">
+            <PiWarehouseFill className="text-yellow-400 text-2xl"/>
             <span>{progress}%</span>
-            <HiHome className="text-xl text-blue-500" />
+            <HiHome className="text-blue-500 text-xl"/>
           </div>
 
-          <div className="relative w-full h-2 bg-gray-100 rounded-full overflow-visible">
-            <div
-              className="absolute left-0 top-0 h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300 rounded-full"
-              style={{ width: `${progress}%` }}
-            />
+          <div className="relative h-2 bg-gray-100 rounded-full">
+            <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+              style={{width:`${progress}%`}}/>
 
-            {/* UFO */}
-            <div
-              className="absolute -top-2 transition-all duration-300"
-              style={{ left: `calc(${progress}% - 16px)` }}
-            >
-              <div className="relative flex items-center justify-center">
-                <div className="absolute w-8 h-8 bg-indigo-500 blur-lg opacity-30 rounded-full" />
-                <PiFlyingSaucerFill
-                  className="relative text-xl drop-shadow-[0_4px_10px_rgba(99,102,241,0.5)]
-                  animate-[float_3s_ease-in-out_infinite]"
-                />
-              </div>
-            </div>
+            <PiFlyingSaucerFill
+              className="absolute -top-2 text-indigo-500"
+              style={{left:`calc(${progress}% - 10px)`}}
+            />
           </div>
         </div>
 
-        {/* Location */}
-        <button
-          onClick={getLiveLocation}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3
-          bg-black text-white rounded-xl shadow-md
-          hover:scale-[1.02] active:scale-[0.98] transition"
-        >
-          <FaLocationCrosshairs />
-          Use Live Location
-        </button>
+        {/* BOOK BUTTON */}
+        {!booked && (
+          <button onClick={bookDrone}
+            className="bg-black text-white py-3 rounded-xl">
+            Book Drone
+          </button>
+        )}
 
-        {/* Slide */}
-        <SlideToConfirm onConfirm={() => alert("Order Confirmed 🚀")} />
+        {/* LOADER */}
+        {booking && <Loader/>}
+
+        {/* CONFIRM SLIDER */}
+        {booked && !confirmed && (
+          <SlideToConfirm onConfirm={confirmOrder}/>
+        )}
+
+        {confirming && <Loader/>}
+
+        {confirmed && (
+          <p className="text-center text-green-600 font-semibold">
+            ✅ Order Confirmed
+          </p>
+        )}
+
       </div>
     </div>
   )
 }
 
+/* ================= SLIDER ================= */
+
 const SlideToConfirm = ({ onConfirm }) => {
-  const [dragX, setDragX] = useState(0)
-  const [confirmed, setConfirmed] = useState(false)
+  const [dragX,setDragX]=useState(0)
   const sliderRef = useRef(null)
   const maxDrag = 240
 
-  const handleMove = (e) => {
-    if (confirmed) return
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX
-    const rect = sliderRef.current.getBoundingClientRect()
-    let newX = clientX - rect.left - 24
-    newX = Math.max(0, Math.min(newX, maxDrag))
-    setDragX(newX)
+  const move=e=>{
+    const x=e.touches?e.touches[0].clientX:e.clientX
+    const rect=sliderRef.current.getBoundingClientRect()
+    let nx=x-rect.left-24
+    nx=Math.max(0,Math.min(nx,maxDrag))
+    setDragX(nx)
   }
 
-  const handleEnd = () => {
-    if (confirmed) return
-    if (dragX > maxDrag * 0.92) {
-      setDragX(maxDrag)
-      setConfirmed(true)
-      onConfirm && onConfirm()
-    } else setDragX(0)
+  const end=()=>{
+    if(dragX>maxDrag*0.9) onConfirm()
+    setDragX(0)
   }
 
   return (
-    <div
-      ref={sliderRef}
-      className={`relative h-14 w-full rounded-xl flex items-center px-2 shadow-inner select-none transition-all
-      ${confirmed ? "bg-green-500/20" : "bg-gray-100"}`}
-      onMouseMove={(e) => dragX !== 0 && handleMove(e)}
-      onMouseUp={handleEnd}
-      onMouseLeave={handleEnd}
-      onTouchMove={handleMove}
-      onTouchEnd={handleEnd}
-    >
-      <div
-        onMouseDown={() => setDragX(1)}
-        onTouchStart={() => setDragX(1)}
-        style={{ transform: `translateX(${dragX}px)` }}
-        className={`absolute left-1 top-1 w-12 h-12 rounded-xl flex items-center justify-center
-        shadow-lg transition-all duration-300 ease-out
-        ${confirmed ? "bg-green-500 scale-110" : "bg-black hover:scale-105"} text-white`}
-      >
-        {confirmed ? "✓" : "→"}
+    <div ref={sliderRef}
+      className="relative h-14 bg-gray-100 rounded-xl"
+      onMouseMove={e=>dragX&&move(e)}
+      onMouseUp={end}
+      onTouchMove={move}
+      onTouchEnd={end}>
+
+      <div onMouseDown={()=>setDragX(1)}
+        onTouchStart={()=>setDragX(1)}
+        style={{transform:`translateX(${dragX}px)`}}
+        className="absolute w-12 h-12 bg-black text-white
+          flex items-center justify-center rounded-xl">
+        →
       </div>
 
-      <p className={`absolute left-1/2 -translate-x-1/2 text-sm font-medium transition
-        ${confirmed ? "text-green-600" : "text-gray-500"}`}
-      >
-        {confirmed ? "Order Confirmed" : "Slide to confirm"}
+      <p className="text-center pt-4 text-gray-500">
+        Slide to confirm
       </p>
     </div>
   )

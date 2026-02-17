@@ -4,6 +4,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 import telemetryRoutes from "./routes/telemetry.js";
+import droneStatusRoutes from "./routes/droneStatus.js"
+
 
 dotenv.config();
 
@@ -23,6 +25,8 @@ app.get("/", (req, res) => {
 
 // Telemetry routes
 app.use("/telemetry", telemetryRoutes);
+
+app.use("/drone", droneStatusRoutes)
 
 // 404
 app.use((req, res) => {
