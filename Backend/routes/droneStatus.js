@@ -1,54 +1,114 @@
-import express from "express"
-import DroneStatus from "../models/DroneStatus.js"
+import express from "express";
+import DroneStatus from "../models/DroneStatus.js";
 
-const router = express.Router()
+const router = express.Router();
 
-// 🔹 BOOK DRONE
-router.post("/book", async (req, res) => {
-  const { droneId } = req.body
+/* ================= TEST ================= */
+router.get("/test", (req,res)=>{
+  res.send("DroneStatus routes working ✅");
+});
 
-  const drone = await DroneStatus.findOneAndUpdate(
-    { droneId },
-    { booked: true, updatedAt: Date.now() },
-    { upsert: true, new: true }
-  )
+/* ================= BOOK DRONE ================= */
+router.post("/book", async (req,res)=>{
+  try{
+    console.log("BOOK BODY:", req.body);
 
-  res.json({ message: "Drone booked", drone })
-})
+    const { droneId } = req.body;
 
-// 🔹 CONFIRM ORDER
-router.post("/confirm", async (req, res) => {
-  const { droneId } = req.body
+    if(!droneId){
+      return res.status(400).json({ error:"droneId required" });
+    }
 
-  const drone = await DroneStatus.findOneAndUpdate(
-    { droneId },
-    { confirmed: true, updatedAt: Date.now() },
-    { upsert: true, new: true }
-  )
+    const data = await DroneStatus.findOneAndUpdate(
+      { droneId },
+      { booked:true },
+      { upsert:true, new:true }
+    );
 
-  res.json({ message: "Order confirmed", drone })
-})
+    res.json({
+      message:"Drone booked ✅",
+      data
+    });
 
-// 🔹 RESET (set both false)
-router.post("/reset", async (req, res) => {
-  const { droneId } = req.body
+  }catch(err){
+    res.status(500).json({ error: err.message });
+  }
+});
 
-  const drone = await DroneStatus.findOneAndUpdate(
-    { droneId },
-    { booked: false, confirmed: false, updatedAt: Date.now() },
-    { upsert: true, new: true }
-  )
+/* ================= CONFIRM ORDER ================= */
+router.post("/confirm", async (req,res)=>{
+  try{
+    console.log("CONFIRM BODY:", req.body);
 
-  res.json({ message: "Reset done", drone })
-})
+    const { droneId } = req.body;
 
-// 🔹 GET STATUS
-router.get("/:droneId", async (req, res) => {
-  const drone = await DroneStatus.findOne({
-    droneId: req.params.droneId
-  })
+    if(!droneId){
+      return res.status(400).json({ error:"droneId required" });
+    }
 
-  res.json(drone || {})
-})
+    const data = await DroneStatus.findOneAndUpdate(
+      { droneId },
+      { confirmed:true },
+      { upsert:true, new:true }
+    );
 
-export default router
+    res.json({
+      message:"Order confirmed 🚀",
+      data
+    });
+
+  }catch(err){
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ================= RESET ================= */
+router.post("/reset", async (req,res)=>{
+  try{
+    console.log("RESET BODY:", req.body);
+
+    const { droneId } = req.body;
+
+    if(!droneId){
+      return res.status(400).json({ error:"droneId required" });
+    }
+
+    const data = await DroneStatus.findOneAndUpdate(
+      { droneId },
+      { booked:false, confirmed:false },
+      { upsert:true, new:true }
+    );
+
+    res.json({
+      message:"Reset done 🔄",
+      data
+    });
+
+  }catch(err){
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ================= GET STATUS ================= */
+router.get("/:droneId", async (req,res)=>{
+  try{
+    const data = await DroneStatus.findOne({
+      droneId:req.params.droneId
+    });
+
+    if(!data){
+      return res.json({
+        droneId:req.params.droneId,
+        booked:false,
+        confirmed:false
+      });
+    }
+
+    res.json(data);
+
+  }catch(err){
+    res.status(500).json({ error: err.message });
+  }
+});
+
+export default router;
