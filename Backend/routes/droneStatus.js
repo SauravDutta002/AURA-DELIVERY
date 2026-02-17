@@ -3,56 +3,52 @@ import DroneStatus from "../models/DroneStatus.js"
 
 const router = express.Router()
 
-/* ================= BOOK DRONE ================= */
-router.post("/book/:droneId", async (req,res)=>{
-  const { droneId } = req.params
+// 🔹 BOOK DRONE
+router.post("/book", async (req, res) => {
+  const { droneId } = req.body
 
-  const doc = await DroneStatus.findOneAndUpdate(
+  const drone = await DroneStatus.findOneAndUpdate(
     { droneId },
-    { booked:true, confirmed:false, updatedAt:Date.now() },
-    { upsert:true, new:true }
+    { booked: true, updatedAt: Date.now() },
+    { upsert: true, new: true }
   )
 
-  res.json({message:"Drone booked", doc})
+  res.json({ message: "Drone booked", drone })
 })
 
-/* ================= CONFIRM ORDER ================= */
-router.post("/confirm/:droneId", async (req,res)=>{
-  const { droneId } = req.params
+// 🔹 CONFIRM ORDER
+router.post("/confirm", async (req, res) => {
+  const { droneId } = req.body
 
-  const doc = await DroneStatus.findOneAndUpdate(
+  const drone = await DroneStatus.findOneAndUpdate(
     { droneId },
-    { confirmed:true, updatedAt:Date.now() },
-    { new:true }
+    { confirmed: true, updatedAt: Date.now() },
+    { upsert: true, new: true }
   )
 
-  res.json({message:"Order confirmed", doc})
+  res.json({ message: "Order confirmed", drone })
 })
 
-/* ================= RESET ================= */
-router.post("/reset/:droneId", async (req,res)=>{
-  const { droneId } = req.params
+// 🔹 RESET (set both false)
+router.post("/reset", async (req, res) => {
+  const { droneId } = req.body
 
-  const doc = await DroneStatus.findOneAndUpdate(
+  const drone = await DroneStatus.findOneAndUpdate(
     { droneId },
-    { booked:false, confirmed:false, updatedAt:Date.now() },
-    { new:true }
+    { booked: false, confirmed: false, updatedAt: Date.now() },
+    { upsert: true, new: true }
   )
 
-  res.json({message:"Reset done", doc})
+  res.json({ message: "Reset done", drone })
 })
 
-/* ================= GET STATUS (Pi will poll) ================= */
-router.get("/:droneId", async (req,res)=>{
-  const { droneId } = req.params
-
-  const doc = await DroneStatus.findOne({droneId})
-
-  res.json(doc || {
-    droneId,
-    booked:false,
-    confirmed:false
+// 🔹 GET STATUS
+router.get("/:droneId", async (req, res) => {
+  const drone = await DroneStatus.findOne({
+    droneId: req.params.droneId
   })
+
+  res.json(drone || {})
 })
 
 export default router
