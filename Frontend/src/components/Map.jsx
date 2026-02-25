@@ -73,8 +73,9 @@ const RecenterMap = ({ dronePos, userPos, active }) => {
       timerRef.current = setTimeout(() => {
         followRef.current = true
         reframe()
-      }, 5000)
+      }, 2000)
     }
+
 
     map.on("dragstart zoomstart", pauseFollow)
     return () => map.off("dragstart zoomstart", pauseFollow)
