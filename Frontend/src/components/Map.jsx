@@ -1,363 +1,136 @@
-
-
-
-// // import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet"
-// // import "leaflet/dist/leaflet.css"
-// // import L from "leaflet"
-// // import DroneIcon from "../assets/icons/Drone_Icon.png"
-// // import { useEffect } from "react"
-
-// // // Fix default marker icon issue
-// // delete L.Icon.Default.prototype._getIconUrl
-// // L.Icon.Default.mergeOptions({
-// //   iconRetinaUrl:
-// //     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-// //   iconUrl:
-// //     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-// //   shadowUrl:
-// //     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-// // })
-
-// // // 🏠 Home Icon
-// // const homePin = new L.Icon({
-// //   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-// //   iconSize: [42, 42],
-// //   iconAnchor: [21, 42],
-// // })
-
-// // // 📍 User Icon
-// // const livePin = new L.Icon({
-// //   iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149059.png",
-// //   iconSize: [42, 42],
-// //   iconAnchor: [21, 42],
-// // })
-
-// // // 🚁 Drone Icon
-// // const dronePin = new L.Icon({
-// //   iconUrl: DroneIcon,
-// //   iconSize: [48, 48],
-// //   iconAnchor: [24, 24],
-// // })
-
-// // // 📡 Auto-center on drone
-// // const RecenterMap = ({ dronePos }) => {
-// //   const map = useMap()
-
-// //   useEffect(() => {
-// //     if (dronePos) {
-// //       map.setView(dronePos, 56)
-// //     }
-// //   }, [dronePos, map])
-
-// //   return null
-// // }
-
-// // const Map = ({ droneLocation, userLocation }) => {
-// //   const home = [30.7695, 76.577523]
-
-// //   const dronePos = droneLocation
-// //     ? [droneLocation.lat, droneLocation.lng]
-// //     : null
-
-// //   const userPos = userLocation
-// //     ? [userLocation.lat, userLocation.lng]
-// //     : null
-
-// //   return (
-// //     <div className="h-screen w-full rounded-2xl overflow-hidden shadow-2xl">
-// //       <MapContainer
-// //         center={home}
-// //         zoom={16}
-// //         className="h-full w-full"
-// //       >
-// //           {/* // google maps  */}
-// //          {/* <TileLayer
-// //           url="https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}"
-// //         /> */}
-
-        
-// //         <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
-
-// //         {/* 🏠 Base */}
-// //         <Marker position={home} icon={homePin} />
-
-// //         {/* 📍 User */}
-// //         {userPos && (
-// //           <Marker position={userPos} icon={livePin} />
-// //         )}
-
-// //         {/* 🚁 Drone */}
-// //         {dronePos && (
-// //           <>
-// //             <Marker position={dronePos} icon={dronePin} />
-// //             <RecenterMap dronePos={dronePos} />
-// //           </>
-// //         )}
-
-// //         {/* ✈ Line drone → user */}
-// //         {dronePos && userPos && (
-// //           <Polyline
-// //             positions={[dronePos, userPos]}
-// //             pathOptions={{
-// //               color: "#000",
-// //               weight: 2,
-// //               dashArray: "6 6",
-// //             }}
-// //           />
-// //         )}
-// //       </MapContainer>
-// //     </div>
-// //   )
-// // }
-
-// // export default Map
-
-
-// import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet"
-// import "leaflet/dist/leaflet.css"
-// import L from "leaflet"
-// import DroneIcon from "../assets/icons/Drone_Icon.png"
-// import { useEffect, useRef } from "react"
-
-// /* ================= ICON FIX ================= */
-// delete L.Icon.Default.prototype._getIconUrl
-// L.Icon.Default.mergeOptions({
-//   iconRetinaUrl:
-//     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-//   iconUrl:
-//     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-//   shadowUrl:
-//     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-// })
-
-// /* ================= ICONS ================= */
-// const homePin = new L.Icon({
-//   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-//   iconSize: [42, 42],
-//   iconAnchor: [21, 42],
-// })
-
-// const livePin = new L.Icon({
-//   iconUrl: "https://cdn-icons-png.flaticon.com/512/149/149059.png",
-//   iconSize: [42, 42],
-//   iconAnchor: [21, 42],
-// })
-
-// const dronePin = new L.Icon({
-//   iconUrl: DroneIcon,
-//   iconSize: [48, 48],
-//   iconAnchor: [24, 24],
-// })
-
-// /* ================= SMART RECENTER ================= */
-// const RecenterMap = ({ dronePos }) => {
-//   const map = useMap()
-
-//   const followRef = useRef(true)
-//   const timerRef = useRef(null)
-  
-//   useEffect(() => {
-//     if (!dronePos) return
-    
-//     const pauseFollow = () => {
-//       followRef.current = false
-      
-//       if (timerRef.current) clearTimeout(timerRef.current)
-        
-//         timerRef.current = setTimeout(() => {
-//           followRef.current = true
-//           map.setView(dronePos , 90)
-//         }, 5000)
-//       }
-
-//     // ONLY real user interactions
-//     map.on("dragstart zoomstart", pauseFollow)
-
-//     return () => {
-//       map.off("dragstart zoomstart", pauseFollow)
-//     }
-//   }, [map])
-
-//   // Drone tracking
-//   useEffect(() => {
-//     if (!dronePos) return
-//     if (!followRef.current) return
-
-//     map.flyTo(dronePos, map.getZoom(), {
-//       duration: 1,
-//     })
-//   }, [dronePos, map])
-
-//   return null
-// }
-
-// /* ================= MAIN MAP ================= */
-// const Map = ({ droneLocation, userLocation }) => {
-//   const home = [30.7695, 76.577523]
-
-//   const dronePos = droneLocation
-//     ? [droneLocation.lat, droneLocation.lng]
-//     : null
-
-//   const userPos = userLocation
-//     ? [userLocation.lat, userLocation.lng]
-//     : null
-
-//   return (
-//     <div className="h-screen w-full rounded-2xl overflow-hidden shadow-2xl">
-//       <MapContainer center={home} zoom={16} className="h-full w-full">
-
-//         <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
-
-//         {/* Home */}
-//         <Marker position={home} icon={homePin} />
-
-//         {/* User */}
-//         {userPos && <Marker position={userPos} icon={livePin} />}
-
-//         {/* Drone */}
-//         {dronePos && (
-//           <>
-//             <Marker position={dronePos} icon={dronePin} />
-//             <RecenterMap dronePos={dronePos} />
-//           </>
-//         )}
-
-//         {/* Line */}
-//         {dronePos && userPos && (
-//           <Polyline
-//             positions={[dronePos, userPos]}
-//             pathOptions={{
-//               color: "#000",
-//               weight: 2,
-//               dashArray: "6 6",
-//             }}
-//           />
-//         )}
-
-//       </MapContainer>
-//     </div>
-//   )
-// }
-
-// export default Map
-
-
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
 import L from "leaflet"
 import DroneIcon from "../assets/icons/Drone_Icon.png"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useCallback } from "react"
 
-/* ICON FIX */
+/* ================= ICON FIX ================= */
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:"https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl:"https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl:"https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 })
 
-/* ICONS */
-const homePin=new L.Icon({
-  iconUrl:"https://cdn-icons-png.flaticon.com/512/684/684908.png",
-  iconSize:[42,42],
-  iconAnchor:[21,42],
+/* ================= ICONS ================= */
+
+// 🖤 User dot — black circle with pulsing ring
+const userDot = L.divIcon({
+  className: "leaflet-user-icon",
+  html: `
+    <div class="user-dot-wrapper">
+      <div class="user-dot-pulse"></div>
+      <div class="user-dot"></div>
+    </div>`,
+  iconSize: [28, 28],
+  iconAnchor: [14, 14],
 })
 
-const livePin=new L.Icon({
-  iconUrl:"https://cdn-icons-png.flaticon.com/512/149/149059.png",
-  iconSize:[42,42],
-  iconAnchor:[21,42],
+// 🚁 Drone icon (same as original working version)
+const dronePin = new L.Icon({
+  iconUrl: DroneIcon,
+  iconSize: [48, 48],
+  iconAnchor: [24, 24],
 })
 
-const dronePin=new L.Icon({
-  iconUrl:DroneIcon,
-  iconSize:[48,48],
-  iconAnchor:[24,24],
-})
+/* ================= SMART RECENTER (Rapido-style) ================= */
+const RecenterMap = ({ dronePos, userPos, active }) => {
+  const map = useMap()
+  const followRef = useRef(true)
+  const timerRef = useRef(null)
+  const prevActiveRef = useRef(active)
 
-/* SMART RECENTER */
-const RecenterMap=({dronePos})=>{
-  const map=useMap()
-  const followRef=useRef(true)
-  const timerRef=useRef(null)
+  const reframe = useCallback(() => {
+    if (active && dronePos && userPos) {
+      // Drone is in transit → fit both markers on screen
+      // As drone gets closer, bounds shrink → map auto-zooms in tighter
+      const bounds = L.latLngBounds([dronePos, userPos])
+      map.flyToBounds(bounds, {
+        padding: [80, 80],   // generous padding so markers aren't at the edge
+        maxZoom: 18,         // zoom tighter as drone gets closer
+        duration: 1.2,
+      })
+    } else if (userPos) {
+      // No active delivery → center on user location
+      map.flyTo(userPos, 18, { duration: 1 })
+    }
+  }, [map, dronePos, userPos, active])
 
-  useEffect(()=>{
-    if(!dronePos) return
+  // When delivery is cancelled (active goes true→false), snap to user
+  useEffect(() => {
+    if (prevActiveRef.current && !active && userPos) {
+      followRef.current = true
+      map.flyTo(userPos, 16, { duration: 1 })
+    }
+    prevActiveRef.current = active
+  }, [active, userPos, map])
 
-    const pauseFollow=()=>{
-      followRef.current=false
-
-      if(timerRef.current) clearTimeout(timerRef.current)
-
-      timerRef.current=setTimeout(()=>{
-        followRef.current=true
-        map.setView(dronePos,30)
-      },5000)
+  // Pause auto-follow when user manually drags/zooms
+  useEffect(() => {
+    const pauseFollow = () => {
+      followRef.current = false
+      if (timerRef.current) clearTimeout(timerRef.current)
+      timerRef.current = setTimeout(() => {
+        followRef.current = true
+        reframe()
+      }, 5000)
     }
 
-    map.on("dragstart zoomstart",pauseFollow)
-    return()=>map.off("dragstart zoomstart",pauseFollow)
-  },[map,dronePos])
+    map.on("dragstart zoomstart", pauseFollow)
+    return () => map.off("dragstart zoomstart", pauseFollow)
+  }, [map, reframe])
 
-  useEffect(()=>{
-    if(dronePos && followRef.current){
-      map.flyTo(dronePos,map.getZoom(),{duration:1})
+  // Re-fit whenever positions update (drone moving closer = tighter zoom)
+  useEffect(() => {
+    if (followRef.current) {
+      reframe()
     }
-  },[dronePos,map])
+  }, [dronePos, userPos, reframe])
 
   return null
 }
 
-/* MAIN MAP */
-// const Map=({droneLocation,userLocation,showPath})=>{
-//   const home=[30.7695,76.577523]
+/* ================= ANIMATED PATH (ref-based) ================= */
+const AnimatedPath = ({ from, to }) => {
+  // Callback ref: as soon as Leaflet mounts the Polyline, grab its
+  // underlying SVG <path> element and add our CSS animation class.
+  const dashRef = useCallback((node) => {
+    if (node) {
+      const el = node.getElement()
+      if (el) {
+        el.classList.add("animated-path")
+      }
+    }
+  }, [])
 
-//   const dronePos=droneLocation
-//     ? [droneLocation.lat,droneLocation.lng]
-//     : null
+  return (
+    <>
+      {/* Glow backdrop */}
+      <Polyline
+        positions={[from, to]}
+        pathOptions={{
+          color: "#000",
+          weight: 6,
+          opacity: 0.1,
+        }}
+      />
+      {/* Animated dashes */}
+      <Polyline
+        ref={dashRef}
+        positions={[from, to]}
+        pathOptions={{
+          color: "#111",
+          weight: 2.5,
+          dashArray: "10 14",
+          lineCap: "round",
+        }}
+      />
+    </>
+  )
+}
 
-//   const userPos=userLocation
-//     ? [userLocation.lat,userLocation.lng]
-//     : null
-
-//   return(
-//     <div className="h-screen w-full rounded-2xl overflow-hidden shadow-2xl">
-//       <MapContainer center={home} zoom={16} className="h-full w-full">
-
-//         <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"/>
-
-//         <Marker position={home} icon={homePin}/>
-
-//         {userPos && <Marker position={userPos} icon={livePin}/>}
-
-//         {dronePos && (
-//           <>
-//             <Marker position={dronePos} icon={dronePin}/>
-//             <RecenterMap dronePos={dronePos}/>
-//           </>
-//         )}
-
-//         {/* PATH ONLY WHEN showPath === true */}
-//         {showPath && dronePos && userPos && (
-//           <Polyline
-//             positions={[dronePos,userPos]}
-//             pathOptions={{
-//               color:"#000",
-//               weight:2,
-//               dashArray:"6 6",
-//             }}
-//           />
-//         )}
-
-//       </MapContainer>
-//     </div>
-//   )
-// }
-
-
+/* ================= MAIN MAP ================= */
 const Map = ({ droneLocation, userLocation, showPath }) => {
-
   const dronePos = droneLocation
     ? [droneLocation.lat, droneLocation.lng]
     : null
@@ -367,30 +140,31 @@ const Map = ({ droneLocation, userLocation, showPath }) => {
     : null
 
   return (
-    <MapContainer center={[30.7695,76.577523]} zoom={16} className="h-full w-full">
+    <MapContainer
+      center={[30.7695, 76.577523]}
+      zoom={16}
+      className="h-full w-full"
+      scrollWheelZoom={true}
+      dragging={true}
+      zoomControl={false}
+    >
+      <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
 
-      <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"/>
+      {/* 🖤 User location — black dot with pulse */}
+      {userPos && <Marker position={userPos} icon={userDot} />}
 
-      {userPos && <Marker position={userPos} icon={livePin}/>}
+      {/* 🚁 Drone */}
+      {dronePos && <Marker position={dronePos} icon={dronePin} />}
 
-      {dronePos && 
-      <>
-      <Marker position={dronePos} icon={dronePin}/>
-       <RecenterMap dronePos={userLocation}/>
-      </>}
+      {/* Auto-fit: both markers when active, user only on cancel */}
+      <RecenterMap dronePos={dronePos} userPos={userPos} active={showPath} />
 
+      {/* ✈ Animated path drone → user */}
       {showPath && dronePos && userPos && (
-        <Polyline
-          positions={[dronePos,userPos]}
-          pathOptions={{color:"#000",weight:2,dashArray:"6 6"}}
-        />
-
-        // <Polyline positions={[dronePos,userPos]} />
+        <AnimatedPath from={dronePos} to={userPos} />
       )}
-
     </MapContainer>
   )
 }
-
 
 export default Map
