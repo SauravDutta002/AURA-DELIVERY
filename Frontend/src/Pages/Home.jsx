@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react"
 import Map from "../components/Map"
 import FloatingInfoCard from "../components/FloatingInfoCard"
 
-const API_URL = "https://aura-delivery-1.onrender.com"
+const API_URL = "https://aura-delivery-zmug.onrender.com"
 const API_KEY = "SUPER_SECRET_KEY"
 const DRONE_ID = "DRONE001"
 
