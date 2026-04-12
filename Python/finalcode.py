@@ -21,8 +21,8 @@ LANDING_LAT       = 30.7685839   # predefined landing pad latitude
 LANDING_LON       = 76.5770003   # predefined landing pad longitude
 
 DRONE_ID          = "DRONE001"
-MISSION_API_URL   = f"https://aura-delivery-1.onrender.com/drone/{DRONE_ID}"
-RESET_API_URL     = "https://aura-delivery-1.onrender.com/drone/reset"
+MISSION_API_URL   = f"https://aura-delivery-zmug.onrender.com/drone/{DRONE_ID}"
+RESET_API_URL     = "https://aura-delivery-zmug.onrender.com/drone/reset"
 POLL_INTERVAL     = 5            # seconds between API checks
 
 # ===============================================================
