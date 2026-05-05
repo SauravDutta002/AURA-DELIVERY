@@ -68,7 +68,7 @@ const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orde
           ) : !booked ? (
             <BookingState key="booking" onBook={() => onAction("book")} />
           ) : !confirmed ? (
-            <ConfirmState key="confirm" onConfirm={() => onAction("confirm")} onCancel={() => onAction("reset")} orderItems={orderItems} />
+            <ConfirmState key="confirm" onConfirm={() => onAction("confirm")} onCancel={() => onAction("reset")} orderItems={orderItems} selectedPort={selectedPort} />
           ) : progress >= 100 ? (
             <DeliveryCompleteState key="completed" onReset={() => onAction("reset")} selectedPort={selectedPort} />
           ) : (
@@ -126,7 +126,7 @@ const BookingState = ({ onBook }) => (
 )
 
 /* ===== CONFIRM STATE ===== */
-const ConfirmState = ({ onConfirm, onCancel, orderItems = [] }) => (
+const ConfirmState = ({ onConfirm, onCancel, orderItems = [], selectedPort = null }) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="flex flex-col gap-4">
     {/* Order Card */}
     <div className="flex items-center justify-between pt-1">
@@ -161,8 +161,8 @@ const ConfirmState = ({ onConfirm, onCancel, orderItems = [] }) => (
         </div>
         <div>
           <p className="text-[10px] text-slate-400 font-medium">Deliver to</p>
-          <p className="text-[13px] font-medium text-slate-900 mt-0.5">Nearest SkyLink Port</p>
-          <p className="text-[10px] text-slate-400 mt-0.5">Auto-assigned on confirm</p>
+          <p className="text-[13px] font-medium text-slate-900 mt-0.5">{selectedPort?.name || "Nearest SkyLink Port"}</p>
+          <p className="text-[10px] text-slate-400 mt-0.5">Please collect it from here</p>
         </div>
       </div>
     </div>

@@ -53,12 +53,18 @@ const Tracking = () => {
     if (!confirmed || !selectedPort) return;
 
     const FLIGHT_DURATION_MS = 15000; // 15 seconds
+    const DELAY_MS = 2000; // Wait 2 seconds before taking off
     const startPos = { lat: 30.777772, lng: 76.575884 };
     const endPos = { lat: selectedPort.lat, lng: selectedPort.lng };
-    const startTime = Date.now();
+    const startTime = Date.now() + DELAY_MS;
 
     const animate = () => {
       const now = Date.now();
+      if (now < startTime) {
+        animationRef.current = requestAnimationFrame(animate);
+        return; // Wait until delay passes
+      }
+
       const elapsed = now - startTime;
       let p = (elapsed / FLIGHT_DURATION_MS) * 100;
 
@@ -113,7 +119,6 @@ const Tracking = () => {
       if (res.ok) {
         if (type === "book") {
           setBooked(true)
-          setConfirmed(true) // instantly start tracking
           setShowPath(true)
         }
         if (type === "confirm") setConfirmed(true)
@@ -158,7 +163,7 @@ const Tracking = () => {
         <Map
           droneLocation={droneLocation}
           userLocation={userLocation}
-          showPath={showPath && confirmed && progress < 100}
+          showPath={showPath && progress < 100}
           ports={skylinkPorts}
           selectedPort={selectedPort}
         />
