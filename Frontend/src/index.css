@@ -5,11 +5,28 @@
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-body {
-  @apply bg-[#f8fafc] text-slate-900 antialiased overflow-hidden;
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Premium shadow for floating glass elements */
+body {
+  @apply bg-[#f8fafc] text-slate-900 antialiased;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ═══════════════════════════════════════════════════
+   CARD SHADOW — premium light
+   ═══════════════════════════════════════════════════ */
 .shadow-card {
   box-shadow:
     0 0 0 1px rgba(0,0,0,0.02),
@@ -18,19 +35,18 @@ body {
     0 20px 48px -12px rgba(0,0,0,0.06);
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
-
-/* Leaflet */
+/* ═══════════════════════════════════════════════════
+   LEAFLET OVERRIDES — light theme
+   ═══════════════════════════════════════════════════ */
 .leaflet-container { background: #f8fafc !important; }
 .leaflet-bar { border: none !important; box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important; }
 
 /* Override leaflet default divIcon styles */
 .leaflet-user-icon { background: none !important; border: none !important; }
 
-/* ============ USER DOT ============ */
+/* ═══════════════════════════════════════════════════
+   USER DOT — black
+   ═══════════════════════════════════════════════════ */
 .user-dot-wrapper {
   position: relative;
   width: 28px;
@@ -68,7 +84,9 @@ body {
   100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
 }
 
-/* ============ DRONE ICON ============ */
+/* ═══════════════════════════════════════════════════
+   DRONE ICON
+   ═══════════════════════════════════════════════════ */
 @keyframes drone-hover {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
@@ -83,7 +101,9 @@ body {
   transform: scale(1.15) !important;
 }
 
-/* ============ ANIMATED PATH ============ */
+/* ═══════════════════════════════════════════════════
+   ANIMATED PATH
+   ═══════════════════════════════════════════════════ */
 @keyframes dash-flow {
   to { stroke-dashoffset: -30; }
 }
@@ -93,7 +113,9 @@ body {
   filter: drop-shadow(0 0 3px rgba(0,0,0,0.12));
 }
 
-/* Slider shimmer */
+/* ═══════════════════════════════════════════════════
+   SLIDER SHIMMER
+   ═══════════════════════════════════════════════════ */
 @keyframes shimmer-slide {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(400%); }
@@ -109,7 +131,9 @@ body {
   border-radius: 1rem;
 }
 
-/* Subtle gradient overlay on map for depth */
+/* ═══════════════════════════════════════════════════
+   MAP GRADIENT OVERLAY
+   ═══════════════════════════════════════════════════ */
 .map-gradient-overlay {
   background: linear-gradient(
     to bottom,
@@ -119,4 +143,77 @@ body {
     rgba(248, 250, 252, 0.4) 100%
   );
   pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════
+   LEAFLET ATTRIBUTION — hide for cleaner look
+   ═══════════════════════════════════════════════════ */
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   SKYLINK PORT MARKERS
+   ═══════════════════════════════════════════════════ */
+.skylink-port-icon, .skylink-port-icon-active {
+  background: none !important;
+  border: none !important;
+}
+
+.port-marker {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.port-marker-inner {
+  width: 32px; height: 32px;
+  background: #fff;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+.port-marker:hover .port-marker-inner {
+  border-color: #94a3b8;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  transform: scale(1.08);
+}
+
+.port-marker-active {
+  width: 40px; height: 40px;
+  position: relative;
+}
+.port-marker-active::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 14px;
+  border: 2px solid rgba(239, 68, 68, 0.3);
+  animation: port-pulse 2s ease-out infinite;
+}
+.port-marker-inner-active {
+  width: 36px; height: 36px;
+  background: #ef4444;
+  border: 2px solid #ef4444;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+}
+@keyframes port-pulse {
+  0%   { transform: scale(1); opacity: 1; }
+  70%  { transform: scale(1.4); opacity: 0; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* Popup styling */
+.skylink-popup .leaflet-popup-content-wrapper {
+  border-radius: 12px !important;
+  padding: 4px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important;
+  border: 1px solid #e2e8f0 !important;
+}
+.skylink-popup .leaflet-popup-tip {
+  box-shadow: none !important;
+  border: 1px solid #e2e8f0 !important;
 }

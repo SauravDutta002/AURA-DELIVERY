@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Polyline, useMap } from "react-leaflet"
+import { MapContainer, TileLayer, Marker, Polyline, useMap, Popup } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
 import L from "leaflet"
 import DroneIcon from "../assets/icons/Drone_Icon.png"
@@ -14,7 +14,7 @@ L.Icon.Default.mergeOptions({
 
 /* ================= ICONS ================= */
 
-// 🖤 User dot — black circle with pulsing ring
+// User dot — black circle with pulsing ring
 const userDot = L.divIcon({
   className: "leaflet-user-icon",
   html: `
@@ -26,46 +26,75 @@ const userDot = L.divIcon({
   iconAnchor: [14, 14],
 })
 
-// 🚁 Drone icon (same as original working version)
+// Drone icon
 const dronePin = new L.Icon({
   iconUrl: DroneIcon,
   iconSize: [48, 48],
   iconAnchor: [24, 24],
 })
 
-/* ================= SMART RECENTER (Rapido-style) ================= */
-const RecenterMap = ({ dronePos, userPos, active }) => {
+// SkyLink Port — default (grey)
+const portIcon = L.divIcon({
+  className: "skylink-port-icon",
+  html: `
+    <div class="port-marker">
+      <div class="port-marker-inner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#64748b">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+        </svg>
+      </div>
+    </div>`,
+  iconSize: [36, 36],
+  iconAnchor: [18, 18],
+})
+
+// SkyLink Port — selected (red/active)
+const portIconActive = L.divIcon({
+  className: "skylink-port-icon-active",
+  html: `
+    <div class="port-marker port-marker-active">
+      <div class="port-marker-inner-active">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
+        </svg>
+      </div>
+    </div>`,
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
+})
+
+/* ================= SMART RECENTER ================= */
+const RecenterMap = ({ dronePos, userPos, portPos, active, ports }) => {
   const map = useMap()
   const followRef = useRef(true)
   const timerRef = useRef(null)
   const prevActiveRef = useRef(active)
 
   const reframe = useCallback(() => {
-    if (active && dronePos && userPos) {
-      // Drone is in transit → fit both markers on screen
-      // As drone gets closer, bounds shrink → map auto-zooms in tighter
-      const bounds = L.latLngBounds([dronePos, userPos])
-      map.flyToBounds(bounds, {
-        padding: [80, 80],   // generous padding so markers aren't at the edge
-        maxZoom: 18,         // zoom tighter as drone gets closer
-        duration: 1.2,
-      })
+    if (active && dronePos && portPos) {
+      // Active tracking: fit drone + selected port
+      const bounds = L.latLngBounds([dronePos, portPos])
+      if (userPos) bounds.extend(userPos)
+      map.flyToBounds(bounds, { padding: [80, 80], maxZoom: 16, duration: 1.2 })
+    } else if (ports && ports.length > 0 && userPos) {
+      // Before confirm: fit user + all ports
+      const allPoints = ports.map((p) => [p.lat, p.lng])
+      allPoints.push(userPos)
+      const bounds = L.latLngBounds(allPoints)
+      map.flyToBounds(bounds, { padding: [60, 60], maxZoom: 14, duration: 1.2 })
     } else if (userPos) {
-      // No active delivery → center on user location
-      map.flyTo(userPos, 18, { duration: 1 })
+      map.flyTo(userPos, 14, { duration: 1 })
     }
-  }, [map, dronePos, userPos, active])
+  }, [map, dronePos, userPos, portPos, active, ports])
 
-  // When delivery is cancelled (active goes true→false), snap to user
   useEffect(() => {
     if (prevActiveRef.current && !active && userPos) {
       followRef.current = true
-      map.flyTo(userPos, 16, { duration: 1 })
+      map.flyTo(userPos, 14, { duration: 1 })
     }
     prevActiveRef.current = active
   }, [active, userPos, map])
 
-  // Pause auto-follow when user manually drags/zooms
   useEffect(() => {
     const pauseFollow = () => {
       followRef.current = false
@@ -73,77 +102,46 @@ const RecenterMap = ({ dronePos, userPos, active }) => {
       timerRef.current = setTimeout(() => {
         followRef.current = true
         reframe()
-      }, 2000)
+      }, 3000)
     }
-
-
     map.on("dragstart zoomstart", pauseFollow)
     return () => map.off("dragstart zoomstart", pauseFollow)
   }, [map, reframe])
 
-  // Re-fit whenever positions update (drone moving closer = tighter zoom)
   useEffect(() => {
-    if (followRef.current) {
-      reframe()
-    }
-  }, [dronePos, userPos, reframe])
+    if (followRef.current) reframe()
+  }, [dronePos, userPos, portPos, reframe])
 
   return null
 }
 
-/* ================= ANIMATED PATH (ref-based) ================= */
+/* ================= ANIMATED PATH ================= */
 const AnimatedPath = ({ from, to }) => {
-  // Callback ref: as soon as Leaflet mounts the Polyline, grab its
-  // underlying SVG <path> element and add our CSS animation class.
   const dashRef = useCallback((node) => {
     if (node) {
       const el = node.getElement()
-      if (el) {
-        el.classList.add("animated-path")
-      }
+      if (el) el.classList.add("animated-path")
     }
   }, [])
 
   return (
     <>
-      {/* Glow backdrop */}
-      <Polyline
-        positions={[from, to]}
-        pathOptions={{
-          color: "#000",
-          weight: 6,
-          opacity: 0.1,
-        }}
-      />
-      {/* Animated dashes */}
-      <Polyline
-        ref={dashRef}
-        positions={[from, to]}
-        pathOptions={{
-          color: "#111",
-          weight: 2.5,
-          dashArray: "10 14",
-          lineCap: "round",
-        }}
-      />
+      <Polyline positions={[from, to]} pathOptions={{ color: "#000", weight: 6, opacity: 0.1 }} />
+      <Polyline ref={dashRef} positions={[from, to]} pathOptions={{ color: "#111", weight: 2.5, dashArray: "10 14", lineCap: "round" }} />
     </>
   )
 }
 
 /* ================= MAIN MAP ================= */
-const Map = ({ droneLocation, userLocation, showPath }) => {
-  const dronePos = droneLocation
-    ? [droneLocation.lat, droneLocation.lng]
-    : null
-
-  const userPos = userLocation
-    ? [userLocation.lat, userLocation.lng]
-    : null
+const MapComponent = ({ droneLocation, userLocation, showPath, ports = [], selectedPort = null }) => {
+  const dronePos = droneLocation ? [droneLocation.lat, droneLocation.lng] : null
+  const userPos = userLocation ? [userLocation.lat, userLocation.lng] : null
+  const portPos = selectedPort ? [selectedPort.lat, selectedPort.lng] : null
 
   return (
     <MapContainer
-      center={[30.7695, 76.577523]}
-      zoom={16}
+      center={[30.7640, 76.5723]}
+      zoom={13}
       className="h-full w-full"
       scrollWheelZoom={true}
       dragging={true}
@@ -151,21 +149,43 @@ const Map = ({ droneLocation, userLocation, showPath }) => {
     >
       <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
 
-      {/* 🖤 User location — black dot with pulse */}
+      {/* User location */}
       {userPos && <Marker position={userPos} icon={userDot} />}
 
-      {/* 🚁 Drone */}
+      {/* Drone */}
       {dronePos && <Marker position={dronePos} icon={dronePin} />}
 
-      {/* Auto-fit: both markers when active, user only on cancel */}
-      <RecenterMap dronePos={dronePos} userPos={userPos} active={showPath} />
+      {/* SkyLink Ports */}
+      {(selectedPort ? [selectedPort] : ports).map((port) => {
+        const isSelected = selectedPort && selectedPort.id === port.id
+        return (
+          <Marker
+            key={port.id}
+            position={[port.lat, port.lng]}
+            icon={isSelected ? portIconActive : portIcon}
+          >
+            <Popup className="skylink-popup" closeButton={false} autoPan={false}>
+              <div style={{ textAlign: "center", fontFamily: "Inter, sans-serif", padding: "2px 0" }}>
+                <p style={{ fontSize: "11px", fontWeight: 700, color: "#0f172a", margin: 0 }}>{port.name}</p>
+                <p style={{ fontSize: "9px", color: "#94a3b8", margin: "2px 0 0", fontWeight: 500 }}>{port.address}</p>
+                {isSelected && (
+                  <p style={{ fontSize: "8px", color: "#ef4444", margin: "3px 0 0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>● Selected Port</p>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        )
+      })}
 
-      {/* ✈ Animated path drone → user */}
-      {showPath && dronePos && userPos && (
-        <AnimatedPath from={dronePos} to={userPos} />
+      {/* Auto-recenter */}
+      <RecenterMap dronePos={dronePos} userPos={userPos} portPos={portPos} active={showPath} ports={ports} />
+
+      {/* Animated path: drone → selected port */}
+      {showPath && dronePos && portPos && (
+        <AnimatedPath from={dronePos} to={portPos} />
       )}
     </MapContainer>
   )
 }
 
-export default Map
+export default MapComponent

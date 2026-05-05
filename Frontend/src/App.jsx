@@ -1,16 +1,20 @@
 import React from 'react'
-import {Routes, Route } from "react-router-dom";
-import Layout from './Layout/Layout';
-import Home from './Pages/Home';
+import { Routes, Route, Navigate } from "react-router-dom"
+import Order from './Pages/Order'
+import Tracking from './Pages/Tracking'
+import Shipments from './Pages/Shipments'
+import OrderDetail from './Pages/OrderDetail'
+
 const App = () => {
   return (
     <Routes>
-      <Route element ={<Layout/>}>
-        <Route path='/' element={<Home/>}/>
-      </Route>
+      <Route path='/' element={<Order />} />
+      <Route path='/order' element={<Navigate to="/" replace />} />
+      <Route path='/track' element={<Tracking />} />
+      <Route path='/shipments' element={<Shipments />} />
+      <Route path='/order/:id' element={<OrderDetail />} />
     </Routes>
   )
 }
 
 export default App
-

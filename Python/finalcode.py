@@ -11,14 +11,14 @@ from pymavlink import mavutil
 # ===============================================================
 #  DELIVERY CONFIG
 # ===============================================================
-DELIVERY_LAT      = 30.7685666   # target drop-off latitude
-DELIVERY_LON      = 76.5768448  # target drop-off longitude
+DELIVERY_LAT      = 30.7666099   # target drop-off latitude
+DELIVERY_LON      = 76.5754285  # target drop-off longitude
 TAKEOFF_ALTITUDE  = 5.0          # metres — cruise/travel altitude
 DESCENT_ALTITUDE  = 2.0          # metres — hover altitude at delivery point
 WAYPOINT_RADIUS   = 2.0          # metres — "close enough" to waypoint
 
-LANDING_LAT       = 30.7685839   # predefined landing pad latitude
-LANDING_LON       = 76.5770003   # predefined landing pad longitude
+LANDING_LAT       = 30.7666768   # predefined landing pad latitude
+LANDING_LON       = 76.5755412   # predefined landing pad longitude
 
 DRONE_ID          = "DRONE001"
 MISSION_API_URL   = f"https://aura-delivery-zmug.onrender.com/drone/{DRONE_ID}"
