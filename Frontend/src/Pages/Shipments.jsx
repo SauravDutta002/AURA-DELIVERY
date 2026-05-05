@@ -172,8 +172,9 @@ export const BottomNav = ({ active }) => {
         {items.map((item) => {
           const isActive = active === item.id
           return (
-            <button
+            <motion.button
               key={item.id}
+              whileTap={{ scale: 0.85 }}
               onClick={() => navigate(item.path)}
               className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all ${
                 isActive ? "text-slate-900" : "text-slate-400 hover:text-slate-600"
@@ -186,7 +187,7 @@ export const BottomNav = ({ active }) => {
               {isActive && (
                 <motion.div layoutId="nav-dot" className="w-1 h-1 bg-slate-900 rounded-full" />
               )}
-            </button>
+            </motion.button>
           )
         })}
       </div>

@@ -99,13 +99,9 @@ const Order = () => {
 
       {/* ── Product Grid ───────────────────────────── */}
       <div className="flex-1 px-5 pt-2 pb-36 overflow-y-auto">
-        <AnimatePresence mode="popLayout">
-          {filtered.length > 0 ? (
-            <motion.div
-              layout
-              className="grid grid-cols-2 sm:grid-cols-3 gap-3"
-            >
-              {filtered.map((product) => (
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {filtered.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
@@ -114,18 +110,13 @@ const Order = () => {
                   onRemove={() => removeFromCart(product.id)}
                 />
               ))}
-            </motion.div>
+            </div>
           ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center py-20 gap-3"
-            >
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
               <FiSearch size={32} className="text-slate-200" />
               <p className="text-[13px] text-slate-400 font-medium">No products found</p>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
       </div>
 
       {/* ── Floating Cart Bar ──────────────────────── */}
