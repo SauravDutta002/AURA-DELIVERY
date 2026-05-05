@@ -5,7 +5,7 @@ import { FiPackage, FiChevronDown, FiChevronUp, FiMapPin } from "react-icons/fi"
 import { motion, AnimatePresence } from "framer-motion"
 import DroneIcon from "../assets/icons/Drone_Icon.png"
 
-const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orderItems = [], selectedPort = null }) => {
+const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orderItems = [], selectedPort = null, orderId = null }) => {
   const [open, setOpen] = useState(true)
 
   return (
@@ -68,7 +68,7 @@ const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orde
           ) : !booked ? (
             <BookingState key="booking" onBook={() => onAction("book")} />
           ) : !confirmed ? (
-            <ConfirmState key="confirm" onConfirm={() => onAction("confirm")} onCancel={() => onAction("reset")} orderItems={orderItems} selectedPort={selectedPort} />
+            <ConfirmState key="confirm" onConfirm={() => onAction("confirm")} onCancel={() => onAction("reset")} orderItems={orderItems} selectedPort={selectedPort} orderId={orderId} />
           ) : progress >= 100 ? (
             <DeliveryCompleteState key="completed" onReset={() => onAction("reset")} selectedPort={selectedPort} />
           ) : (
@@ -126,7 +126,7 @@ const BookingState = ({ onBook }) => (
 )
 
 /* ===== CONFIRM STATE ===== */
-const ConfirmState = ({ onConfirm, onCancel, orderItems = [], selectedPort = null }) => (
+const ConfirmState = ({ onConfirm, onCancel, orderItems = [], selectedPort = null, orderId = null }) => (
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="flex flex-col gap-4">
     {/* Order Card */}
     <div className="flex items-center justify-between pt-1">
@@ -135,7 +135,7 @@ const ConfirmState = ({ onConfirm, onCancel, orderItems = [], selectedPort = nul
           <FiPackage size={15} className="text-slate-500" />
         </div>
         <div>
-          <p className="text-[13px] font-semibold text-slate-900">#AURA-{Date.now().toString().slice(-6)}</p>
+          <p className="text-[13px] font-semibold text-slate-900">#{orderId || `AURA-${Date.now().toString().slice(-6)}`}</p>
           <p className="text-[10px] text-slate-400">Drone Delivery</p>
         </div>
       </div>

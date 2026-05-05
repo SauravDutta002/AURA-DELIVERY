@@ -22,7 +22,7 @@ const Tracking = () => {
   const [showPath, setShowPath] = useState(false)
   const [selectedPort, setSelectedPort] = useState(null) // nearest SkyLink Port
 
-  const { orderItems, placeOrder, orderPlaced, resetOrder, cart } = useOrder()
+  const { orderItems, placeOrder, orderPlaced, resetOrder, cart, currentOrderId } = useOrder()
   const navigate = useNavigate()
 
   const syncLockRef = useRef(null)
@@ -182,6 +182,7 @@ const Tracking = () => {
           onAction={handleAction}
           orderItems={orderItems}
           selectedPort={selectedPort}
+          orderId={currentOrderId}
         />
       </div>
     </div>
