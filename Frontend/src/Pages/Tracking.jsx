@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import Map from "../components/Map"
 import FloatingInfoCard from "../components/FloatingInfoCard"
-import SimulationBadge from "../components/SimulationBadge"
 import { useOrder } from "../context/OrderContext"
 import { skylinkPorts, findNearestPort } from "../data/skyports"
 import { motion } from "framer-motion"
@@ -46,48 +45,46 @@ const Tracking = () => {
 
   // Auto-book removed: user must manually slide to book to assign the port and start tracking.
 
-  /* FLIGHT SIMULATION LOOP */
-  const animationRef = useRef(null)
-
+  /* REAL TELEMETRY POLLING */
   useEffect(() => {
     if (!confirmed || !selectedPort) return;
 
-    const FLIGHT_DURATION_MS = 15000; // 15 seconds
-    const DELAY_MS = 2000; // Wait 2 seconds before taking off
     const startPos = { lat: 30.777772, lng: 76.575884 };
-    const endPos = { lat: selectedPort.lat, lng: selectedPort.lng };
-    const startTime = Date.now() + DELAY_MS;
-
-    const animate = () => {
-      const now = Date.now();
-      if (now < startTime) {
-        animationRef.current = requestAnimationFrame(animate);
-        return; // Wait until delay passes
+    
+    const fetchTelemetry = async () => {
+      try {
+        const res = await fetch(`${API_URL}/telemetry/latest/${DRONE_ID}`, {
+          headers: { "x-api-key": API_KEY }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.lat && data.lon) {
+            const currentPos = { lat: data.lat, lng: data.lon };
+            setDroneLocation(currentPos);
+            
+            // Calculate progress based on distance
+            const dist = (p1, p2) => Math.sqrt(Math.pow(p1.lat - p2.lat, 2) + Math.pow(p1.lng - p2.lng, 2));
+            const totalDist = dist(startPos, { lat: selectedPort.lat, lng: selectedPort.lng });
+            const currentDist = dist(currentPos, { lat: selectedPort.lat, lng: selectedPort.lng });
+            
+            let p = 100 - (currentDist / totalDist) * 100;
+            if (p < 0) p = 0;
+            // Snap to 100 if very close
+            if (p > 100 || currentDist < 0.0001) p = 100; 
+            
+            setProgress(p);
+          }
+        }
+      } catch (err) {
+        console.error("Telemetry fetch failed", err);
       }
-
-      const elapsed = now - startTime;
-      let p = (elapsed / FLIGHT_DURATION_MS) * 100;
-
-      if (p >= 100) {
-        p = 100;
-        setProgress(100);
-        setDroneLocation({ lat: endPos.lat, lng: endPos.lng });
-        return;
-      }
-
-      setProgress(p);
-      const currentLat = startPos.lat + (endPos.lat - startPos.lat) * (p / 100);
-      const currentLng = startPos.lng + (endPos.lng - startPos.lng) * (p / 100);
-      setDroneLocation({ lat: currentLat, lng: currentLng });
-
-      animationRef.current = requestAnimationFrame(animate);
     };
 
-    animationRef.current = requestAnimationFrame(animate);
+    // Fetch immediately then every 2 seconds
+    fetchTelemetry();
+    const interval = setInterval(fetchTelemetry, 2000);
 
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    };
+    return () => clearInterval(interval);
   }, [confirmed, selectedPort]);
 
   /* UNIFIED ACTION HANDLER */
@@ -144,8 +141,6 @@ const Tracking = () => {
 
   return (
     <div className="relative h-screen w-full bg-[#f8fafc] overflow-hidden">
-      <SimulationBadge />
-
       {/* Back button */}
       <motion.button
         initial={{ opacity: 0, x: -20 }}
