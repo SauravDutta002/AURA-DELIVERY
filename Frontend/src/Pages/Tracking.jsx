@@ -168,7 +168,7 @@ const Tracking = () => {
       <div className="absolute inset-0 z-[1] map-gradient-overlay" />
 
       {/* FLOATING CARD */}
-      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[10000] w-full max-w-lg px-2 sm:px-4">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[10000] w-full max-w-lg px-2 sm:px-4 pointer-events-none">
         <FloatingInfoCard
           loading={loading}
           booked={booked}

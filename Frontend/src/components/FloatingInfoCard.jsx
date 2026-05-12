@@ -13,7 +13,7 @@ const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orde
       initial={{ y: "100%" }}
       animate={{ y: open ? 0 : "calc(100% - 72px)" }}
       transition={{ type: "spring", damping: 32, stiffness: 300 }}
-      className="bg-white rounded-t-[2rem] overflow-hidden"
+      className="bg-white rounded-t-[2rem] overflow-hidden pointer-events-auto"
       style={{ boxShadow: "0 -4px 30px rgba(0,0,0,0.1)" }}
     >
       {/* PULL HANDLE */}
