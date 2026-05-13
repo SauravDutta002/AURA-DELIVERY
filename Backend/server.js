@@ -23,6 +23,11 @@ app.get("/", (req, res) => {
   res.send("Drone Telemetry API UPDATED");
 });
 
+// Health check for Cron jobs (Render keep-alive)
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 // Telemetry routes
 app.use("/telemetry", telemetryRoutes);
 
