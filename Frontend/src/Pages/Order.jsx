@@ -29,7 +29,6 @@ const Order = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col relative">
-      <SimulationBadge />
 
       {/* ── Blinkit-Style Blue Header ──────────────── */}
       <div className="bg-gradient-to-b from-sky-200 via-blue-100 to-[#f8fafc] pt-12 pb-2 px-4 relative z-10">

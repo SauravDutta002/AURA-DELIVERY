@@ -177,6 +177,7 @@ const MapComponent = ({ droneLocation, userLocation, showPath, ports = [], selec
               <div style={{ textAlign: "center", fontFamily: "Inter, sans-serif", padding: "2px 0" }}>
                 <p style={{ fontSize: "11px", fontWeight: 700, color: "#0f172a", margin: 0 }}>{port.name}</p>
                 <p style={{ fontSize: "9px", color: "#94a3b8", margin: "2px 0 0", fontWeight: 500 }}>{port.address}</p>
+                <p style={{ fontSize: "8px", color: "#64748b", margin: "3px 0 0", fontWeight: 600, fontFamily: "monospace" }}>{port.lat.toFixed(7)}, {port.lng.toFixed(7)}</p>
                 {isSelected && (
                   <p style={{ fontSize: "8px", color: "#ef4444", margin: "3px 0 0", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>● Selected Port</p>
                 )}
