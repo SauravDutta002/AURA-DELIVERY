@@ -160,50 +160,35 @@ body {
   border: none !important;
 }
 
-.port-marker {
-  width: 36px; height: 36px;
+.port-locker {
+  width: 20px; height: 22px;
   display: flex; align-items: center; justify-content: center;
-}
-
-.port-marker-inner {
-  width: 32px; height: 32px;
-  background: #fff;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   transition: all 0.2s ease;
 }
-.port-marker:hover .port-marker-inner {
-  border-color: #94a3b8;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-  transform: scale(1.08);
+.port-locker:hover {
+  transform: scale(1.15);
 }
 
-.port-marker-active {
-  width: 40px; height: 40px;
+.port-locker-active {
+  width: 26px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
   position: relative;
 }
-.port-marker-active::before {
-  content: '';
+
+.port-pulse {
   position: absolute;
-  inset: -4px;
-  border-radius: 14px;
-  border: 2px solid rgba(239, 68, 68, 0.3);
-  animation: port-pulse 2s ease-out infinite;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px; height: 24px;
+  background: rgba(239, 68, 68, 0.25);
+  border-radius: 50%;
+  animation: drone-port-pulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  z-index: 1;
 }
-.port-marker-inner-active {
-  width: 36px; height: 36px;
-  background: #ef4444;
-  border: 2px solid #ef4444;
-  border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
-}
-@keyframes port-pulse {
-  0%   { transform: scale(1); opacity: 1; }
-  70%  { transform: scale(1.4); opacity: 0; }
-  100% { transform: scale(1.4); opacity: 0; }
+
+@keyframes drone-port-pulse {
+  0%   { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2.8); opacity: 0; }
 }
 
 /* Popup styling */

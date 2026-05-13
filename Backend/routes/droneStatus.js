@@ -13,7 +13,7 @@ router.post("/book", async (req,res)=>{
   try{
     console.log("BOOK BODY:", req.body);
 
-    const { droneId } = req.body;
+    const { droneId, userLat, userLng } = req.body;
 
     if(!droneId){
       return res.status(400).json({ error:"droneId required" });
@@ -21,7 +21,7 @@ router.post("/book", async (req,res)=>{
 
     const data = await DroneStatus.findOneAndUpdate(
       { droneId },
-      { booked:true },
+      { booked:true, userLat: userLat || null, userLng: userLng || null },
       { upsert:true, new:true }
     );
 

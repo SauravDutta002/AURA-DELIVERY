@@ -4,6 +4,7 @@ import Order from './Pages/Order'
 import Tracking from './Pages/Tracking'
 import Shipments from './Pages/Shipments'
 import OrderDetail from './Pages/OrderDetail'
+import Admin from './Pages/Admin'
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
       <Route path='/track' element={<Tracking />} />
       <Route path='/shipments' element={<Shipments />} />
       <Route path='/order/:id' element={<OrderDetail />} />
+      <Route path='/admin' element={<Admin />} />
     </Routes>
   )
 }

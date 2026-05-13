@@ -12,8 +12,14 @@ import { BottomNav } from "./Shipments"
 const Order = () => {
   const [activeCategory, setActiveCategory] = useState("all")
   const [search, setSearch] = useState("")
-  const { addToCart, removeFromCart, getQty } = useOrder()
+  const { addToCart, removeFromCart, getQty, orderPlaced } = useOrder()
   const navigate = useNavigate()
+
+  React.useEffect(() => {
+    if (orderPlaced) {
+      navigate('/track', { replace: true })
+    }
+  }, [orderPlaced, navigate])
 
   const filtered = products.filter((p) => {
     const matchCat = activeCategory === "all" || p.category === activeCategory

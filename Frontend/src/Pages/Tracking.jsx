@@ -13,13 +13,26 @@ const DRONE_ID = "DRONE001"
 
 const Tracking = () => {
   const [userLocation, setUserLocation] = useState(null)
-  const [droneLocation, setDroneLocation] = useState({ lat: 30.777772, lng: 76.575884 })
-  const [booked, setBooked] = useState(false)
-  const [confirmed, setConfirmed] = useState(false)
+  const [droneLocation, setDroneLocation] = useState({ lat: 30.0112224, lng: 78.2217014 })
+  const [booked, setBooked] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("aura_tracking_booked")) || false } catch { return false }
+  })
+  const [confirmed, setConfirmed] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("aura_tracking_confirmed")) || false } catch { return false }
+  })
   const [progress, setProgress] = useState(0)
   const [loading, setLoading] = useState(false)
-  const [showPath, setShowPath] = useState(false)
-  const [selectedPort, setSelectedPort] = useState(null) // nearest SkyLink Port
+  const [showPath, setShowPath] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("aura_tracking_showPath")) || false } catch { return false }
+  })
+  const [selectedPort, setSelectedPort] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("aura_tracking_port")) || null } catch { return null }
+  })
+
+  useEffect(() => { localStorage.setItem("aura_tracking_booked", JSON.stringify(booked)) }, [booked])
+  useEffect(() => { localStorage.setItem("aura_tracking_confirmed", JSON.stringify(confirmed)) }, [confirmed])
+  useEffect(() => { localStorage.setItem("aura_tracking_showPath", JSON.stringify(showPath)) }, [showPath])
+  useEffect(() => { localStorage.setItem("aura_tracking_port", JSON.stringify(selectedPort)) }, [selectedPort])
 
   const { orderItems, placeOrder, orderPlaced, resetOrder, cart, currentOrderId } = useOrder()
   const navigate = useNavigate()
@@ -49,7 +62,7 @@ const Tracking = () => {
   useEffect(() => {
     if (!confirmed || !selectedPort) return;
 
-    const startPos = { lat: 30.777772, lng: 76.575884 };
+    const startPos = { lat: 30.0112224, lng: 78.2217014 };
     
     const fetchTelemetry = async () => {
       try {
@@ -108,10 +121,16 @@ const Tracking = () => {
     if (type === "reset") endpoint = "/drone/reset"
 
     try {
+      const bodyPayload = { droneId: DRONE_ID };
+      if (type === "book" && userLocation) {
+        bodyPayload.userLat = userLocation.lat;
+        bodyPayload.userLng = userLocation.lng;
+      }
+
       const res = await fetch(`${API_URL}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-api-key": API_KEY },
-        body: JSON.stringify({ droneId: DRONE_ID })
+        body: JSON.stringify(bodyPayload)
       })
       if (res.ok) {
         if (type === "book") {
@@ -124,7 +143,7 @@ const Tracking = () => {
           setConfirmed(false)
           setShowPath(false)
           setSelectedPort(null)
-          setDroneLocation({ lat: 30.777772, lng: 76.575884 })
+          setDroneLocation({ lat: 30.0112224, lng: 78.2217014 })
           setProgress(0)
           resetOrder()
         }

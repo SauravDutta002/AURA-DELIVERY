@@ -33,34 +33,43 @@ const dronePin = new L.Icon({
   iconAnchor: [24, 24],
 })
 
-// SkyLink Port — default (grey)
+// SkyLink Port — Isometric Locker (grey)
 const portIcon = L.divIcon({
   className: "skylink-port-icon",
   html: `
-    <div class="port-marker">
-      <div class="port-marker-inner">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="#64748b">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
-        </svg>
-      </div>
+    <div class="port-locker">
+      <svg width="24" height="28" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 6px 8px rgba(0,0,0,0.2));">
+        <path d="M14 2 L26 8 L14 14 L2 8 Z" fill="#e2e8f0"/>
+        <path d="M2 8 L14 14 V30 L2 24 Z" fill="#64748b"/>
+        <path d="M14 14 L26 8 V24 L14 30 Z" fill="#94a3b8"/>
+        <!-- Screen -->
+        <path d="M15.5 14.5 L24.5 10 V14 L15.5 18.5 Z" fill="#cbd5e1"/>
+        <!-- Dispense Slot -->
+        <path d="M15.5 22 L24.5 17.5 V21 L15.5 25.5 Z" fill="#475569"/>
+      </svg>
     </div>`,
-  iconSize: [36, 36],
-  iconAnchor: [18, 18],
+  iconSize: [24, 28],
+  iconAnchor: [12, 20],
 })
 
-// SkyLink Port — selected (red/active)
+// SkyLink Port — Isometric Locker (active)
 const portIconActive = L.divIcon({
   className: "skylink-port-icon-active",
   html: `
-    <div class="port-marker port-marker-active">
-      <div class="port-marker-inner-active">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
-        </svg>
-      </div>
+    <div class="port-locker-active">
+       <div class="port-pulse"></div>
+       <svg width="32" height="36" viewBox="0 0 28 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 8px 16px rgba(239, 68, 68, 0.5)); position: relative; z-index: 2;">
+         <path d="M14 2 L26 8 L14 14 L2 8 Z" fill="#fee2e2"/>
+         <path d="M2 8 L14 14 V30 L2 24 Z" fill="#dc2626"/>
+         <path d="M14 14 L26 8 V24 L14 30 Z" fill="#ef4444"/>
+         <!-- Glowing Screen -->
+         <path d="M15.5 14.5 L24.5 10 V14 L15.5 18.5 Z" fill="#ffffff"/>
+         <!-- Dispense Slot -->
+         <path d="M15.5 22 L24.5 17.5 V21 L15.5 25.5 Z" fill="#7f1d1d"/>
+       </svg>
     </div>`,
-  iconSize: [40, 40],
-  iconAnchor: [20, 20],
+  iconSize: [32, 36],
+  iconAnchor: [16, 27],
 })
 
 /* ================= SMART RECENTER ================= */
@@ -141,7 +150,7 @@ const MapComponent = ({ droneLocation, userLocation, showPath, ports = [], selec
   return (
     <MapContainer
       center={[30.7640, 76.5723]}
-      zoom={13}
+      zoom={16}
       className="h-full w-full"
       scrollWheelZoom={true}
       dragging={true}

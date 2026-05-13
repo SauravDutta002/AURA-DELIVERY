@@ -7,6 +7,19 @@ import DroneIcon from "../assets/icons/Drone_Icon.png"
 
 const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orderItems = [], selectedPort = null, orderId = null }) => {
   const [open, setOpen] = useState(true)
+  const [showLoadingAnim, setShowLoadingAnim] = useState(false)
+
+  React.useEffect(() => {
+    if (confirmed) {
+      setShowLoadingAnim(true)
+      const timer = setTimeout(() => {
+        setShowLoadingAnim(false)
+      }, 4000)
+      return () => clearTimeout(timer)
+    } else {
+      setShowLoadingAnim(false)
+    }
+  }, [confirmed])
 
   return (
     <motion.div
@@ -69,6 +82,8 @@ const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orde
             <BookingState key="booking" onBook={() => onAction("book")} />
           ) : !confirmed ? (
             <ConfirmState key="confirm" onConfirm={() => onAction("confirm")} onCancel={() => onAction("reset")} orderItems={orderItems} selectedPort={selectedPort} orderId={orderId} />
+          ) : showLoadingAnim ? (
+            <PackageLoadingAnimation key="pack-anim" items={orderItems} />
           ) : progress >= 100 ? (
             <DeliveryCompleteState key="completed" onReset={() => onAction("reset")} selectedPort={selectedPort} />
           ) : (
@@ -466,5 +481,181 @@ const DeliveryCompleteState = ({ onReset, selectedPort }) => (
     </button>
   </motion.div>
 )
+
+/* ===== TRUE 3D ISOMETRIC PACKAGE LOADER ===== */
+const PackageLoadingAnimation = ({ items }) => {
+  const [phase, setPhase] = useState("packing") // packing, closing, grabbing, flying
+  
+  React.useEffect(() => {
+    // Realistic timing sequence
+    const t1 = setTimeout(() => setPhase("closing"), 1800) // Items finished dropping, flaps close
+    const t2 = setTimeout(() => setPhase("grabbing"), 2600) // Drone drops
+    const t3 = setTimeout(() => setPhase("flying"), 3600) // Takeoff
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+  }, [])
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+      className="py-12 flex flex-col items-center justify-center relative overflow-hidden h-[260px]"
+    >
+      {/* Premium Status Text */}
+      <motion.div className="absolute top-2 flex flex-col items-center z-50">
+        <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800">
+          {phase === "packing" ? "Packing Order" :
+           phase === "closing" ? "Securing Package" :
+           phase === "grabbing" ? "Attaching Drone" :
+           "Takeoff Initiated"}
+        </span>
+        {phase !== "flying" && (
+           <motion.div className="flex gap-1.5 mt-2" animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1 }}>
+             <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
+             <div className="w-1.5 h-1.5 bg-slate-800 rounded-full" />
+             <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
+           </motion.div>
+        )}
+      </motion.div>
+
+      {/* Ground Shadow (Static on floor) */}
+      <motion.div 
+        className="absolute bottom-[35px] w-24 h-6 bg-slate-900/15 blur-[6px] rounded-[50%] z-0"
+        animate={{ opacity: phase === "flying" ? 0 : 1, scale: phase === "flying" ? 0.3 : 1 }}
+        transition={{ duration: 0.8, ease: "easeIn" }}
+      />
+
+      {/* Lift Wrapper (Moves both Drone and Box upwards together) */}
+      <motion.div
+        className="absolute inset-0 flex flex-col items-center justify-center z-10"
+        animate={{ y: phase === "flying" ? -300 : 0 }}
+        transition={{ duration: 0.8, ease: "easeIn" }}
+      >
+        {/* 3D Isometric Box & Drone */}
+        <div className="relative w-full h-full flex items-center justify-center perspective-[1000px] mt-6">
+          <motion.div 
+            className="relative w-16 h-16"
+            style={{ transformStyle: "preserve-3d" }}
+            animate={{ rotateX: 60, rotateZ: -45 }}
+          >
+            {/* Drone (Drops in 3D space and lands directly on box) */}
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
+              initial={{ z: 250, opacity: 0 }}
+              animate={{ 
+                z: phase === "grabbing" || phase === "flying" ? 64 : 250,
+                opacity: phase === "packing" || phase === "closing" ? 0 : 1
+              }}
+              transition={{ 
+                z: phase === "grabbing" ? { type: "spring", bounce: 0.4, duration: 0.8 } : { duration: 0.5 },
+                opacity: { duration: 0.3 }
+              }}
+              style={{ transformStyle: "preserve-3d" }}
+            >
+              {/* Counter-rotate icon to face camera */}
+              <div className="relative" style={{ transform: "rotateZ(45deg) rotateX(-60deg) translateY(-20px)" }}>
+                <img src={DroneIcon} alt="Drone" className="w-[72px] h-[72px] object-contain drop-shadow-2xl" />
+                {/* Thrusters attached to drone */}
+                {phase === "flying" && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 0.8, height: 40 }}
+                    className="absolute top-12 left-1/2 -translate-x-1/2 w-8 bg-gradient-to-b from-cyan-300/40 to-transparent blur-md rounded-b-full"
+                  />
+                )}
+              </div>
+            </motion.div>
+
+            {/* Floor */}
+            <div className="absolute inset-0 bg-[#5c3a14] shadow-[inset_0_0_15px_rgba(0,0,0,0.6)]" style={{ transformStyle: "preserve-3d" }} />
+
+            {/* Items Drop (Translate in Z axis) */}
+            {items && items.slice(0, 3).map((item, i) => {
+              const Icon = item.Icon;
+              return (
+                <motion.div
+                  key={item.id}
+                  className="absolute left-4 top-4 w-6 h-6 bg-white/95 rounded shadow-sm border border-slate-100 flex items-center justify-center"
+                  initial={{ z: 200, opacity: 0 }}
+                  animate={{ 
+                    z: phase === "packing" ? [200, 0] : 0, 
+                    opacity: phase === "packing" ? [0, 1] : 1 
+                  }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: phase === "packing" ? 0.2 + (i * 0.2) : 0, 
+                    ease: "easeIn" 
+                  }}
+                  style={{ transformStyle: "preserve-3d" }}
+                >
+                  <div style={{ transform: "rotateZ(45deg) rotateX(-60deg)" }}>
+                    {Icon && <Icon size={12} className={item.color} />}
+                  </div>
+                </motion.div>
+              )
+            })}
+
+            {/* Wall 1 (Back Left) */}
+            <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-[#8c5e2a] to-[#754c20] origin-top border-t border-[#8f622d]/40" style={{ transform: "rotateX(90deg)", transformStyle: "preserve-3d" }}>
+              <motion.div 
+                className="absolute top-full left-0 w-16 h-8 bg-[#9c6a30] origin-top border-b border-[#8f622d]/20"
+                initial={{ rotateX: 120 }} // Starts Open
+                animate={{ rotateX: phase === "packing" ? 120 : -90 }}
+                transition={{ duration: 0.4, delay: phase === "closing" ? 0.3 : 0 }}
+              />
+            </div>
+
+            {/* Wall 4 (Back Right) */}
+            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[#754e22] to-[#5c3d1b] origin-right border-r border-[#704a1f]/40" style={{ transform: "rotateY(90deg)", transformStyle: "preserve-3d" }}>
+              <motion.div 
+                className="absolute top-0 right-full w-8 h-16 bg-[#855827] origin-right border-l border-[#704a1f]/20"
+                initial={{ rotateY: 120 }} // Starts Open
+                animate={{ rotateY: phase === "packing" ? 120 : -90 }}
+                transition={{ duration: 0.4, delay: phase === "closing" ? 0.4 : 0 }}
+              />
+            </div>
+
+            {/* Wall 3 (Front Left) */}
+            <div className="absolute top-0 left-0 w-16 h-16 bg-gradient-to-br from-[#e0b482] to-[#c79b68] origin-left border-l border-[#c49762]/50 shadow-[-2px_0_5px_rgba(0,0,0,0.05)]" style={{ transform: "rotateY(-90deg)", transformStyle: "preserve-3d" }}>
+              <motion.div 
+                className="absolute top-0 left-full w-8 h-16 bg-[#ebc294] origin-left border-r border-[#c49762]/30"
+                initial={{ rotateY: -120 }} // Starts Open
+                animate={{ rotateY: phase === "packing" ? -120 : 90 }}
+                transition={{ duration: 0.4, delay: phase === "closing" ? 0.2 : 0 }}
+              />
+            </div>
+
+            {/* Wall 2 (Front Right) */}
+            <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-bl from-[#c49762] to-[#a87e4f] origin-bottom border-b border-[#a87e4f]/50 shadow-[0_2px_5px_rgba(0,0,0,0.05)]" style={{ transform: "rotateX(-90deg)", transformStyle: "preserve-3d" }}>
+              <motion.div 
+                className="absolute bottom-full left-0 w-16 h-8 bg-[#d1a673] origin-bottom border-t border-[#a87e4f]/30"
+                initial={{ rotateX: -120 }} // Starts Open
+                animate={{ rotateX: phase === "packing" ? -120 : 90 }}
+                transition={{ duration: 0.4, delay: phase === "closing" ? 0.1 : 0 }}
+              />
+              {/* Shipping Label on Front Wall */}
+              <div className="absolute top-2 right-2 w-5 h-3 bg-white/95 rounded-[1px] p-[1.5px] shadow-sm flex flex-col justify-between" style={{ transform: "rotateX(180deg) rotateZ(10deg)" }}>
+                <div className="w-full h-[1px] bg-slate-800" />
+                <div className="w-2/3 h-[1px] bg-slate-800" />
+              </div>
+              {/* Tape Seam when closed */}
+              {(phase === "closing" || phase === "grabbing" || phase === "flying") && (
+                 <motion.div 
+                   initial={{ scaleX: 0 }}
+                   animate={{ scaleX: 1 }}
+                   transition={{ delay: 0.6, duration: 0.2 }}
+                   className="absolute bottom-full left-0 right-0 h-[6px] bg-white/20 backdrop-blur-sm origin-left z-50 border-y border-white/30"
+                   style={{ transform: "rotateX(90deg) translateZ(1px)" }} // Folds flat over the top
+                 />
+              )}
+            </div>
+
+          </motion.div>
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
 
 export default FloatingInfoCard

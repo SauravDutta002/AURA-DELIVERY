@@ -9,11 +9,28 @@ export const useOrder = () => {
 }
 
 export const OrderProvider = ({ children }) => {
-  const [cart, setCart] = useState([])
-  const [orderPlaced, setOrderPlaced] = useState(false)
-  const [orderItems, setOrderItems] = useState([])
-  const [orderHistory, setOrderHistory] = useState([])
-  const [currentOrderId, setCurrentOrderId] = useState(null)
+  const [cart, setCart] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("aura_cart")) || [] } catch { return [] }
+  })
+  const [orderPlaced, setOrderPlaced] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("aura_orderPlaced")) || false } catch { return false }
+  })
+  const [orderItems, setOrderItems] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("aura_orderItems")) || [] } catch { return [] }
+  })
+  const [orderHistory, setOrderHistory] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("aura_orderHistory")) || [] } catch { return [] }
+  })
+  const [currentOrderId, setCurrentOrderId] = useState(() => localStorage.getItem("aura_currentOrderId") || null)
+
+  React.useEffect(() => { localStorage.setItem("aura_cart", JSON.stringify(cart)) }, [cart])
+  React.useEffect(() => { localStorage.setItem("aura_orderPlaced", JSON.stringify(orderPlaced)) }, [orderPlaced])
+  React.useEffect(() => { localStorage.setItem("aura_orderItems", JSON.stringify(orderItems)) }, [orderItems])
+  React.useEffect(() => { localStorage.setItem("aura_orderHistory", JSON.stringify(orderHistory)) }, [orderHistory])
+  React.useEffect(() => { 
+    if (currentOrderId) localStorage.setItem("aura_currentOrderId", currentOrderId)
+    else localStorage.removeItem("aura_currentOrderId")
+  }, [currentOrderId])
 
   /* ── Cart Actions ───────────────────────────────── */
   const addToCart = useCallback((product) => {
