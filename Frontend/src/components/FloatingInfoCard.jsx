@@ -24,7 +24,7 @@ const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orde
   return (
     <motion.div
       initial={{ y: "100%" }}
-      animate={{ y: open ? 0 : "calc(100% - 72px)" }}
+      animate={{ y: open ? 0 : "calc(100% - 140px)" }}
       transition={{ type: "spring", damping: 32, stiffness: 300 }}
       className="bg-white rounded-t-[2rem] overflow-hidden pointer-events-auto"
       style={{ boxShadow: "0 -4px 30px rgba(0,0,0,0.1)" }}
@@ -87,7 +87,7 @@ const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orde
           ) : progress >= 100 ? (
             <DeliveryCompleteState key="completed" onReset={() => onAction("reset")} selectedPort={selectedPort} />
           ) : (
-            <TrackingState key="tracking" progress={progress} onCancel={() => onAction("reset")} orderItems={orderItems} selectedPort={selectedPort} />
+            <TrackingState key="tracking" progress={progress} onCancel={() => onAction("reset")} orderItems={orderItems} selectedPort={selectedPort} orderId={orderId} />
           )}
         </AnimatePresence>
       </div>
@@ -150,7 +150,7 @@ const ConfirmState = ({ onConfirm, onCancel, orderItems = [], selectedPort = nul
           <FiPackage size={15} className="text-slate-500" />
         </div>
         <div>
-          <p className="text-[13px] font-semibold text-slate-900">#{orderId || `AURA-${Date.now().toString().slice(-6)}`}</p>
+          <p className="text-[13px] font-semibold text-slate-900">#{orderId || "AURA-8049X"}</p>
           <p className="text-[10px] text-slate-400">Drone Delivery</p>
         </div>
       </div>
@@ -250,7 +250,7 @@ const OrderItemsPreview = ({ items }) => {
 }
 
 /* ===== TRACKING STATE — Professional shipment-style ===== */
-const TrackingState = ({ progress, onCancel, orderItems = [], selectedPort = null }) => {
+const TrackingState = ({ progress, onCancel, orderItems = [], selectedPort = null, orderId = null }) => {
   const eta = progress < 95 ? Math.max(1, Math.ceil((100 - progress) * 0.15)) : 0
   const distance = (Math.max(0, (100 - progress) * 2.8) / 1000).toFixed(1)
 
@@ -331,7 +331,7 @@ const TrackingState = ({ progress, onCancel, orderItems = [], selectedPort = nul
         <div className="bg-red-50 rounded-xl border border-red-100 p-3.5">
           <div className="flex items-center gap-2.5 mb-2">
             <div className="w-7 h-7 bg-red-500 rounded-lg flex items-center justify-center">
-              <FiMapPin size={13} className="text-white" />
+               <FiMapPin size={13} className="text-white" />
             </div>
             <div>
               <p className="text-[11px] font-bold text-slate-900">{selectedPort.name}</p>
@@ -352,7 +352,7 @@ const TrackingState = ({ progress, onCancel, orderItems = [], selectedPort = nul
             <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center border border-slate-100">
               <FiPackage size={13} className="text-slate-500" />
             </div>
-            <p className="text-[12px] font-bold text-slate-900 tracking-tight">#AURA-{Date.now().toString().slice(-6)}</p>
+            <p className="text-[12px] font-bold text-slate-900 tracking-tight">#{orderId || "AURA-8049X"}</p>
           </div>
           <div className="px-2 py-0.5 bg-emerald-50 rounded-full border border-emerald-100">
             <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wide">In Transit</span>

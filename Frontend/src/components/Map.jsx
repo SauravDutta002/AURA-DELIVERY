@@ -90,16 +90,16 @@ const RecenterMap = ({ dronePos, userPos, portPos, active, ports }) => {
       const allPoints = ports.map((p) => [p.lat, p.lng])
       allPoints.push(userPos)
       const bounds = L.latLngBounds(allPoints)
-      map.flyToBounds(bounds, { padding: [60, 60], maxZoom: 14, duration: 1.2 })
+      map.flyToBounds(bounds, { padding: [60, 60], maxZoom: 15.5, duration: 1.2 })
     } else if (userPos) {
-      map.flyTo(userPos, 14, { duration: 1 })
+      map.flyTo(userPos, 15, { duration: 1 })
     }
   }, [map, dronePos, userPos, portPos, active, ports])
 
   useEffect(() => {
     if (prevActiveRef.current && !active && userPos) {
       followRef.current = true
-      map.flyTo(userPos, 14, { duration: 1 })
+      map.flyTo(userPos, 15, { duration: 1 })
     }
     prevActiveRef.current = active
   }, [active, userPos, map])
@@ -150,7 +150,7 @@ const MapComponent = ({ droneLocation, userLocation, showPath, ports = [], selec
   return (
     <MapContainer
       center={[30.7640, 76.5723]}
-      zoom={16}
+      zoom={15}
       className="h-full w-full"
       scrollWheelZoom={true}
       dragging={true}
