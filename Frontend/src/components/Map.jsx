@@ -80,10 +80,9 @@ const RecenterMap = ({ dronePos, userPos, portPos, active, ports }) => {
   const prevActiveRef = useRef(active)
 
   const reframe = useCallback(() => {
-    if (active && dronePos && portPos) {
-      // Active tracking: fit drone + selected port
-      const bounds = L.latLngBounds([dronePos, portPos])
-      if (userPos) bounds.extend(userPos)
+    if (active && userPos && portPos) {
+      // Active tracking: fit user + selected port (drone is always between them)
+      const bounds = L.latLngBounds([userPos, portPos])
       map.flyToBounds(bounds, { padding: [80, 80], maxZoom: 16, duration: 1.2 })
     } else if (ports && ports.length > 0 && userPos) {
       // Before confirm: fit user + all ports
@@ -94,7 +93,7 @@ const RecenterMap = ({ dronePos, userPos, portPos, active, ports }) => {
     } else if (userPos) {
       map.flyTo(userPos, 15, { duration: 1 })
     }
-  }, [map, dronePos, userPos, portPos, active, ports])
+  }, [map, userPos, portPos, active, ports])
 
   useEffect(() => {
     if (prevActiveRef.current && !active && userPos) {
@@ -118,8 +117,9 @@ const RecenterMap = ({ dronePos, userPos, portPos, active, ports }) => {
   }, [map, reframe])
 
   useEffect(() => {
+    // Only reframe when the static points or state changes, NOT 60x a second on dronePos
     if (followRef.current) reframe()
-  }, [dronePos, userPos, portPos, reframe])
+  }, [userPos ? userPos.join(',') : '', portPos ? portPos.join(',') : '', active, reframe])
 
   return null
 }

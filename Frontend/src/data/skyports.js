@@ -6,10 +6,10 @@
 export const skylinkPorts = [
   {
     id: "SKL-02",
-    name: "SkyLink Campus",
-    address: "University Gate, North Side",
-    lat: 30.0140000,
-    lng: 78.2220000,
+    name: "SkyLink Drop Zone",
+    address: "Delivery Sector",
+    lat: 30.0133633,
+    lng: 78.2210714,
   },
   {
     id: "SKL-03",
