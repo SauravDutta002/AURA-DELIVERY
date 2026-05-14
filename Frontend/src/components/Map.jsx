@@ -159,7 +159,18 @@ const MapComponent = ({ droneLocation, userLocation, showPath, ports = [], selec
       <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
 
       {/* User location */}
-      {userPos && <Marker position={userPos} icon={userDot} />}
+      {userPos && (
+        <Marker position={userPos} icon={userDot}>
+          <Popup className="skylink-popup" closeButton={false} autoPan={false}>
+            <div style={{ textAlign: "center", fontFamily: "Inter, sans-serif", padding: "2px 0" }}>
+              <p style={{ fontSize: "11px", fontWeight: 700, color: "#0f172a", margin: 0 }}>Your Location</p>
+              <p style={{ fontSize: "9px", color: "#64748b", margin: "3px 0 0", fontWeight: 600, fontFamily: "monospace" }}>
+                {userPos[0].toFixed(6)}, {userPos[1].toFixed(6)}
+              </p>
+            </div>
+          </Popup>
+        </Marker>
+      )}
 
       {/* Drone */}
       {dronePos && <Marker position={dronePos} icon={dronePin} />}
