@@ -86,7 +86,7 @@ const Tracking = () => {
         
         timeout2 = setTimeout(() => {
            setIsDelivering(false); // Finish drop, show Delivery Complete
-        }, 5000);
+        }, 4000);
         return; // Stop animation loop
       }
 
