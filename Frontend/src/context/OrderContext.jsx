@@ -69,7 +69,7 @@ export const OrderProvider = ({ children }) => {
 
   /* ── Place Order (snapshot cart → history) ──────── */
   const placeOrder = useCallback(() => {
-    const orderId = `AURA-${Date.now().toString().slice(-6)}`
+    const orderId = "AURA-233870"
     const now = new Date()
     const newOrder = {
       id: orderId,
