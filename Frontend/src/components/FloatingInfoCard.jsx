@@ -251,7 +251,8 @@ const OrderItemsPreview = ({ items }) => {
 
 /* ===== TRACKING STATE — Professional shipment-style ===== */
 const TrackingState = ({ progress, onCancel, orderItems = [], selectedPort = null, orderId = null }) => {
-  const eta = progress < 95 ? Math.max(1, Math.ceil((100 - progress) * 0.15)) : 0
+  // 19 seconds total simulation time for the remaining 44% of progress (from 56% to 100%)
+  const etaSeconds = progress < 95 ? Math.max(1, Math.ceil(((100 - progress) / 44) * 19)) : 0
   const distance = (Math.max(0, (100 - progress) * 2.8) / 1000).toFixed(1)
 
   return (
@@ -270,7 +271,7 @@ const TrackingState = ({ progress, onCancel, orderItems = [], selectedPort = nul
         </div>
         <div className="w-px bg-slate-100" />
         <div className="flex-1 text-center">
-          <p className="text-[18px] font-bold text-slate-900 tabular-nums">{eta > 0 ? `${eta} min` : "—"}</p>
+          <p className="text-[18px] font-bold text-slate-900 tabular-nums">{etaSeconds > 0 ? `${etaSeconds} sec` : "—"}</p>
           <p className="text-[10px] text-slate-400 font-medium mt-0.5">time left</p>
         </div>
         <div className="w-px bg-slate-100" />
