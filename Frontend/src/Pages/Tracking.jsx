@@ -58,46 +58,64 @@ const Tracking = () => {
 
   // Auto-book removed: user must manually slide to book to assign the port and start tracking.
 
-  /* REAL TELEMETRY POLLING */
+  /* MOCK SIMULATION POLLING */
   useEffect(() => {
     if (!confirmed || !selectedPort) return;
 
     const startPos = { lat: 30.0112224, lng: 78.2217014 };
-    
-    const fetchTelemetry = async () => {
-      try {
-        const res = await fetch(`${API_URL}/telemetry/latest/${DRONE_ID}`, {
-          headers: { "x-api-key": API_KEY }
+    const endPos = { lat: selectedPort.lat, lng: selectedPort.lng };
+    let animationFrame;
+    let startTime;
+    let timeout1;
+    let timeout2;
+
+    const animate = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const duration = 12000; // 12 seconds to travel from 56% to 100%
+
+      // Jump to 56% instantly, then interpolate to 100%
+      let currentSimProgress = 56 + (elapsed / duration) * 44; 
+
+      if (currentSimProgress >= 99.9) {
+        currentSimProgress = 99.9;
+        const p = currentSimProgress / 100;
+        setDroneLocation({
+          lat: startPos.lat + (endPos.lat - startPos.lat) * p,
+          lng: startPos.lng + (endPos.lng - startPos.lng) * p,
         });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.lat && data.lon) {
-            const currentPos = { lat: data.lat, lng: data.lon };
-            setDroneLocation(currentPos);
-            
-            // Calculate progress based on distance
-            const dist = (p1, p2) => Math.sqrt(Math.pow(p1.lat - p2.lat, 2) + Math.pow(p1.lng - p2.lng, 2));
-            const totalDist = dist(startPos, { lat: selectedPort.lat, lng: selectedPort.lng });
-            const currentDist = dist(currentPos, { lat: selectedPort.lat, lng: selectedPort.lng });
-            
-            let p = 100 - (currentDist / totalDist) * 100;
-            if (p < 0) p = 0;
-            // Snap to 100 if very close
-            if (p > 100 || currentDist < 0.0001) p = 100; 
-            
-            setProgress(p);
-          }
-        }
-      } catch (err) {
-        console.error("Telemetry fetch failed", err);
+        setProgress(99.9);
+        
+        // Wait 2 seconds at the destination before showing Delivery Complete (100%)
+        timeout2 = setTimeout(() => {
+           setDroneLocation(endPos);
+           setProgress(100);
+        }, 2000);
+        return; // Stop animation loop
       }
+
+      const p = currentSimProgress / 100;
+      setDroneLocation({
+        lat: startPos.lat + (endPos.lat - startPos.lat) * p,
+        lng: startPos.lng + (endPos.lng - startPos.lng) * p,
+      });
+      setProgress(currentSimProgress);
+
+      animationFrame = requestAnimationFrame(animate);
     };
 
-    // Fetch immediately then every 2 seconds
-    fetchTelemetry();
-    const interval = setInterval(fetchTelemetry, 2000);
+    // 1. Wait 2 seconds after confirm (Assigning Drone phase)
+    timeout1 = setTimeout(() => {
+      // 2. Jump to 56% and start following the path
+      setProgress(56);
+      animationFrame = requestAnimationFrame(animate);
+    }, 2000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timeout1);
+      clearTimeout(timeout2);
+      if (animationFrame) cancelAnimationFrame(animationFrame);
+    };
   }, [confirmed, selectedPort]);
 
   /* UNIFIED ACTION HANDLER */

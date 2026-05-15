@@ -507,8 +507,8 @@ const PackageLoadingAnimation = ({ items }) => {
         <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800">
           {phase === "packing" ? "Packing Order" :
            phase === "closing" ? "Securing Package" :
-           phase === "grabbing" ? "Attaching Drone" :
-           "Takeoff Initiated"}
+           phase === "grabbing" ? "Assigning Drone..." :
+           "Drone Assigned"}
         </span>
         {phase !== "flying" && (
            <motion.div className="flex gap-1.5 mt-2" animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1 }}>

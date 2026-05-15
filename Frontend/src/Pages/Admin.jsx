@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import Map from "../components/Map"
-import { FiNavigation, FiMapPin, FiActivity, FiServer, FiWifi } from "react-icons/fi"
+import { FiNavigation, FiMapPin, FiActivity, FiServer, FiWifi, FiCrosshair } from "react-icons/fi"
+import { skylinkPorts, findNearestPort } from "../data/skyports"
 
 const API_URL = "https://aura-delivery-zmug.onrender.com"
 const API_KEY = "SUPER_SECRET_KEY"
@@ -11,6 +12,8 @@ const Admin = () => {
   const [userLocation, setUserLocation] = useState(null)
   const [status, setStatus] = useState(null)
   const [isConnected, setIsConnected] = useState(true)
+
+  const adminPort = userLocation ? findNearestPort(userLocation.lat, userLocation.lng) : null
 
   useEffect(() => {
     const fetchAdminData = async () => {
@@ -118,7 +121,7 @@ const Admin = () => {
             </div>
 
             {/* User GPS */}
-            <div className="bg-[#18181b] border border-[#27272a] rounded-lg overflow-hidden">
+            <div className="bg-[#18181b] border border-[#27272a] rounded-lg overflow-hidden mb-4">
               <div className="px-4 py-2.5 border-b border-[#27272a] bg-[#1f1f22] flex items-center gap-2">
                 <FiMapPin size={12} className="text-[#a1a1aa]" />
                 <h3 className="text-[12px] font-medium text-[#ededed]">Target Destination</h3>
@@ -140,6 +143,24 @@ const Admin = () => {
                 )}
               </div>
             </div>
+
+            {/* Selected Port */}
+            <div className="bg-[#18181b] border border-[#10b981]/30 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(16,185,129,0.05)]">
+              <div className="px-4 py-2.5 border-b border-[#10b981]/20 bg-[#10b981]/5 flex items-center gap-2">
+                <FiCrosshair size={12} className="text-[#10b981]" />
+                <h3 className="text-[12px] font-medium text-[#10b981]">Designated Landing Zone</h3>
+              </div>
+              <div className="p-4">
+                {adminPort ? (
+                  <div>
+                    <p className="text-[13px] font-bold text-[#ededed] mb-1">{adminPort.name}</p>
+                    <p className="text-[11px] font-mono text-[#10b981]">{adminPort.lat.toFixed(6)}, {adminPort.lng.toFixed(6)}</p>
+                  </div>
+                ) : (
+                  <p className="text-[12px] text-[#71717a] font-medium">Awaiting mission data...</p>
+                )}
+              </div>
+            </div>
           </section>
 
           {/* Quick Data */}
@@ -158,15 +179,27 @@ const Admin = () => {
       </div>
 
       {/* MAP AREA */}
-      <div className="flex-1 relative bg-[#18181b] z-0 border-l border-[#27272a]">
-        <Map
-          droneLocation={droneLocation}
-          userLocation={userLocation}
-          showPath={false}
-          ports={[]}
-        />
-        {/* Sleek vignette overlay to blend map edges into dark theme */}
-        <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_80px_#09090b] z-10" />
+      <div className="flex-1 relative bg-[#09090b] z-0 border-l border-[#27272a] overflow-hidden">
+        <div className="absolute inset-0 z-0" style={{ filter: "invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) sepia(20%)" }}>
+          <Map
+            droneLocation={droneLocation}
+            userLocation={userLocation}
+            showPath={status?.booked || status?.confirmed}
+            ports={skylinkPorts}
+            selectedPort={adminPort}
+          />
+        </div>
+        
+        {/* Tactical UI Overlays */}
+        <div className="absolute top-6 right-6 z-20 pointer-events-none">
+           <div className="flex flex-col items-end gap-1 font-mono text-[#10b981] opacity-70">
+             <span className="text-[10px] tracking-widest">SAT: 12 LOCKED</span>
+             <span className="text-[10px] tracking-widest">ALT: 120M AGL</span>
+             <span className="text-[10px] tracking-widest">HDG: {droneLocation ? "045°" : "---°"}</span>
+           </div>
+        </div>
+        <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_120px_#09090b] z-10" />
+        <div className="absolute inset-0 pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTQwIDBoLTR2MWgzVjM5SDFWMmgzVjFIMFY0MGg0MHYtNDAiIGZpbGw9IiMzMzMiIGZpbGwtb3BhY2l0eT0iMC4xNSIvPjwvc3ZnPg==')] z-10 opacity-30" />
       </div>
 
     </div>
