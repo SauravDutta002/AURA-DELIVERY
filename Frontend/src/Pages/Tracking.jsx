@@ -72,7 +72,7 @@ const Tracking = () => {
     const animate = (timestamp) => {
       if (!startTime) startTime = timestamp;
       const elapsed = timestamp - startTime;
-      const duration = 12000; // 12 seconds to travel from 56% to 100%
+      const duration = 15000; // 15 seconds to travel from 56% to 100%
 
       // Jump to 56% instantly, then interpolate to 100%
       let currentSimProgress = 56 + (elapsed / duration) * 44; 
