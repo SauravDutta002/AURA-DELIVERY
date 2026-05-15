@@ -518,7 +518,7 @@ const WinchDropState = () => (
       className="absolute top-[80px] w-[1px] bg-slate-400 origin-top z-10"
       initial={{ height: 0 }}
       animate={{ height: 90 }}
-      transition={{ duration: 4.5, ease: "linear" }}
+      transition={{ duration: 3.5, ease: "linear" }}
     />
 
     {/* The Package dropping down attached to the string */}
@@ -526,7 +526,7 @@ const WinchDropState = () => (
       className="absolute top-[80px] z-20 flex items-center justify-center"
       initial={{ y: 0 }}
       animate={{ y: 90 }}
-      transition={{ duration: 4.5, ease: "linear" }}
+      transition={{ duration: 3.5, ease: "linear" }}
     >
       <div className="w-8 h-8 bg-[#c49762] rounded-[3px] border border-[#a87e4f] shadow-md flex items-center justify-center relative">
         <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-[#a87e4f]/50" />
