@@ -21,6 +21,7 @@ const Tracking = () => {
     try { return JSON.parse(localStorage.getItem("aura_tracking_confirmed")) || false } catch { return false }
   })
   const [progress, setProgress] = useState(0)
+  const [isDelivering, setIsDelivering] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showPath, setShowPath] = useState(() => {
     try { return JSON.parse(localStorage.getItem("aura_tracking_showPath")) || false } catch { return false }
@@ -78,19 +79,14 @@ const Tracking = () => {
       let currentSimProgress = 56 + (elapsed / duration) * 44; 
 
       if (currentSimProgress >= 99.9) {
-        currentSimProgress = 99.9;
-        const p = currentSimProgress / 100;
-        setDroneLocation({
-          lat: startPos.lat + (endPos.lat - startPos.lat) * p,
-          lng: startPos.lng + (endPos.lng - startPos.lng) * p,
-        });
-        setProgress(99.9);
+        currentSimProgress = 100;
+        setDroneLocation(endPos);
+        setProgress(100);
+        setIsDelivering(true); // Start 5s drop animation
         
-        // Wait 2 seconds at the destination before showing Delivery Complete (100%)
         timeout2 = setTimeout(() => {
-           setDroneLocation(endPos);
-           setProgress(100);
-        }, 2000);
+           setIsDelivering(false); // Finish drop, show Delivery Complete
+        }, 5000);
         return; // Stop animation loop
       }
 
@@ -163,6 +159,7 @@ const Tracking = () => {
           setSelectedPort(null)
           setDroneLocation({ lat: 30.0112224, lng: 78.2217014 })
           setProgress(0)
+          setIsDelivering(false)
           resetOrder()
         }
       }
@@ -211,6 +208,7 @@ const Tracking = () => {
           booked={booked}
           confirmed={confirmed}
           progress={progress}
+          isDelivering={isDelivering}
           onAction={handleAction}
           orderItems={orderItems}
           selectedPort={selectedPort}

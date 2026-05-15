@@ -5,7 +5,7 @@ import { FiPackage, FiChevronDown, FiChevronUp, FiMapPin } from "react-icons/fi"
 import { motion, AnimatePresence } from "framer-motion"
 import DroneIcon from "../assets/icons/Drone_Icon.png"
 
-const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orderItems = [], selectedPort = null, orderId = null }) => {
+const FloatingInfoCard = ({ loading, booked, confirmed, progress, isDelivering, onAction, orderItems = [], selectedPort = null, orderId = null }) => {
   const [open, setOpen] = useState(true)
   const [showLoadingAnim, setShowLoadingAnim] = useState(false)
 
@@ -84,6 +84,8 @@ const FloatingInfoCard = ({ loading, booked, confirmed, progress, onAction, orde
             <ConfirmState key="confirm" onConfirm={() => onAction("confirm")} onCancel={() => onAction("reset")} orderItems={orderItems} selectedPort={selectedPort} orderId={orderId} />
           ) : showLoadingAnim ? (
             <PackageLoadingAnimation key="pack-anim" items={orderItems} />
+          ) : progress === 100 && isDelivering ? (
+            <WinchDropState key="dropping" />
           ) : progress >= 100 ? (
             <DeliveryCompleteState key="completed" onReset={() => onAction("reset")} selectedPort={selectedPort} />
           ) : (
@@ -480,6 +482,60 @@ const DeliveryCompleteState = ({ onReset, selectedPort }) => (
     >
       Back to Home
     </button>
+  </motion.div>
+)
+
+/* ===== WINCH DROP STATE ===== */
+const WinchDropState = () => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0, scale: 0.95 }}
+    className="py-8 flex flex-col items-center justify-center relative h-[220px]"
+  >
+    <div className="absolute top-2 flex flex-col items-center z-50">
+      <span className="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800">
+        Delivering Package
+      </span>
+      <motion.div className="flex gap-1.5 mt-2" animate={{ opacity: [0.2, 1, 0.2] }} transition={{ repeat: Infinity, duration: 1 }}>
+        <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
+        <div className="w-1.5 h-1.5 bg-slate-800 rounded-full" />
+        <div className="w-1.5 h-1.5 bg-slate-400 rounded-full" />
+      </motion.div>
+    </div>
+
+    {/* Drone hovering at the top */}
+    <motion.div 
+      className="absolute top-12 z-20"
+      animate={{ y: [-2, 2, -2] }}
+      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+    >
+      <img src={DroneIcon} alt="Drone" className="w-[60px] h-[60px] object-contain drop-shadow-xl" />
+    </motion.div>
+
+    {/* The string/winch dropping down */}
+    <motion.div
+      className="absolute top-[80px] w-[1px] bg-slate-400 origin-top z-10"
+      initial={{ height: 0 }}
+      animate={{ height: 90 }}
+      transition={{ duration: 4.5, ease: "linear" }}
+    />
+
+    {/* The Package dropping down attached to the string */}
+    <motion.div
+      className="absolute top-[80px] z-20 flex items-center justify-center"
+      initial={{ y: 0 }}
+      animate={{ y: 90 }}
+      transition={{ duration: 4.5, ease: "linear" }}
+    >
+      <div className="w-8 h-8 bg-[#c49762] rounded-[3px] border border-[#a87e4f] shadow-md flex items-center justify-center relative">
+        <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-[#a87e4f]/50" />
+        <FiPackage size={14} className="text-white/80" />
+      </div>
+    </motion.div>
+
+    {/* Ground area */}
+    <div className="absolute bottom-6 w-24 h-[4px] bg-slate-200 rounded-full" />
   </motion.div>
 )
 
