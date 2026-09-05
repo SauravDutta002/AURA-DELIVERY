@@ -181,8 +181,8 @@ const Tracking = () => {
     setLoading(true)
     const safetyTimer = setTimeout(() => setLoading(false), 1500)
 
-    if (type === "book" && userLocation) {
-      const nearest = findNearestPort(userLocation.lat, userLocation.lng)
+    if (type === "book") {
+      const nearest = userLocation ? findNearestPort(userLocation.lat, userLocation.lng) : skylinkPorts[0]
       setSelectedPort(nearest)
       if (!orderPlaced) placeOrder()
       setBooked(true)
