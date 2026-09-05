@@ -97,8 +97,8 @@ const Tracking = () => {
 
     setMissionPhase("outbound")
 
-    const OUTBOUND_MS = 14000 // 14s flight to target location
-    const WINCH_MS = 6500     // 6.5s payload delivery hold
+    const OUTBOUND_MS = 18000 // 18s flight to reach person location
+    const WINCH_MS = 12000    // 12s payload delivery hold
     const TICK = 100
     let elapsed = 0
 
@@ -222,14 +222,14 @@ const Tracking = () => {
 
   useEffect(() => {
     let autoDismissTimer = null
-    if (confirmed && progress >= 30 && progress < 95 && missionPhase === "outbound") {
+    if (confirmed && progress >= 55.5 && progress < 95 && missionPhase === "outbound") {
       if (!alertDismissed && !personFoundAlert) {
         setPersonFoundAlert(true)
-        // Auto dismiss after 3.5s so payload deployment continues automatically
+        // Auto dismiss after 4s so banner shows nicely then dismisses before drone arrives
         autoDismissTimer = setTimeout(() => {
           setPersonFoundAlert(false)
           setAlertDismissed(true)
-        }, 3500)
+        }, 4000)
       }
     }
     if (missionPhase === "delivering" || missionPhase === "returning" || missionPhase === "complete") {
@@ -493,7 +493,7 @@ const Tracking = () => {
                   className="h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full"
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
-                  transition={{ duration: 7, ease: "linear" }}
+                  transition={{ duration: 12, ease: "linear" }}
                 />
               </div>
               <div className="mt-1.5 flex justify-between text-[9px] font-mono text-slate-400">
@@ -532,7 +532,7 @@ const Tracking = () => {
                   className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full"
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
-                  transition={{ duration: 12, ease: "linear" }}
+                  transition={{ duration: 10, ease: "linear" }}
                 />
               </div>
             </div>
@@ -548,7 +548,7 @@ const Tracking = () => {
           showPath={showPath && missionPhase !== "complete"}
           ports={skylinkPorts}
           selectedPort={selectedPort}
-          showPersonFound={progress >= 70 || missionPhase === "delivering" || missionPhase === "returning" || missionPhase === "complete"}
+          showPersonFound={progress >= 55.5 || missionPhase === "delivering" || missionPhase === "returning" || missionPhase === "complete"}
         />
       </div>
 
