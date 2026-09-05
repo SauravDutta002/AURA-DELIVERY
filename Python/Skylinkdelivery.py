@@ -22,8 +22,8 @@ LANDING_LAT       = 30.0122200
 LANDING_LON       = 78.2217523   
 
 DRONE_ID          = "DRONE001"
-MISSION_API_URL   = f"https://aura-delivery-zmug.onrender.com/drone/{DRONE_ID}"
-RESET_API_URL     = "https://aura-delivery-zmug.onrender.com/drone/reset"
+MISSION_API_URL   = f"http://localhost:5000/drone/{DRONE_ID}"
+RESET_API_URL     = "http://localhost:5000/drone/reset"
 POLL_INTERVAL     = 5            # seconds between API checks
 
 # ===============================================================
@@ -122,7 +122,6 @@ vehicle.add_attribute_listener('attitude',                        attitude_liste
 vehicle.add_attribute_listener('location.global_relative_frame', location_listener)
 vehicle.add_attribute_listener('battery',                        battery_listener)
 
-
 # ===============================================================
 #  HELPERS
 # ===============================================================
@@ -137,7 +136,6 @@ def is_rc_active():
         pass
     return False
 
-
 def haversine_distance(lat1, lon1, lat2, lon2):
     """Straight-line distance in metres between two GPS coords."""
     R       = 6371000
@@ -148,7 +146,6 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     a = math.sin(dphi / 2)**2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2)**2
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-
 def abort_to_stabilize(reason="RC override"):
     """Immediately give control back to pilot."""
     global mission_state
@@ -156,7 +153,6 @@ def abort_to_stabilize(reason="RC override"):
     print("   ⚠️  Switching to STABILIZE — pilot has full control")
     vehicle.mode  = VehicleMode("STABILIZE")
     mission_state = "aborted"
-
 
 def rc_safe_sleep(seconds, phase_name=""):
     """
@@ -200,7 +196,6 @@ def fly_to_and_wait(lat, lon, alt, label="waypoint", timeout=180):
     print(f"   ⚠️  Timeout reaching {label}")
     return False
 
-
 def change_altitude_and_wait(new_alt, label="", timeout=20):
     """
     Command altitude change while holding current XY, wait until reached.
@@ -226,7 +221,6 @@ def change_altitude_and_wait(new_alt, label="", timeout=20):
     print(f"   ⚠️  Altitude change timeout")
     return False
 
-
 def wait_for_disarm(timeout=90):
     """Wait for drone to land and auto-disarm. Checks RC override."""
     global mission_state
@@ -241,7 +235,6 @@ def wait_for_disarm(timeout=90):
         time.sleep(1)
     print("   ⚠️  Disarm timeout — check drone")
     return True
-
 
 def reset_api():
     """
@@ -264,7 +257,6 @@ def reset_api():
             print(f"[API] Reset failed (attempt {attempt}): {e}")
         time.sleep(2)
     print("[API] ⚠️  Could not reset after 3 attempts — reset manually if needed")
-
 
 # ===============================================================
 #  AUTONOMOUS DELIVERY MISSION
@@ -442,6 +434,7 @@ def run_delivery_mission():
             LANDING_LAT, LANDING_LON, TAKEOFF_ALTITUDE,
             label="landing pad", timeout=180
         )
+
         if not arrived_home:
             if mission_state != "aborted":
                 print("⚠️  Could not reach landing pad — landing in place")
@@ -508,7 +501,6 @@ def poll_mission_api():
 
         time.sleep(POLL_INTERVAL)
 
-
 # ===============================================================
 #  VIDEO CAPTURE
 # ===============================================================
@@ -535,7 +527,6 @@ def capture_video(stream_url, camera_id):
             latest_frame_2 = resized
         time.sleep(0.02)
     cap.release()
-
 
 # ===============================================================
 #  FLASK ROUTES

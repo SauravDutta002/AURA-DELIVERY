@@ -1,0 +1,53 @@
+export const shops = [
+  {
+    id: "shop-1",
+    name: "AURA Trauma Response Hub",
+    category: "trauma",
+    rating: 4.9,
+    deliveryTime: "3-5 Mins",
+    imageUrl: "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=800&auto=format&fit=crop",
+    description: "Cardiac defibrillators (AED), bleeding control & emergency surgery packs.",
+    tags: ["Trauma Kit", "Defibrillator", "Critical Care"],
+  },
+  {
+    id: "shop-2",
+    name: "Red Cross Rapid Aid Fleet",
+    category: "resuscitation",
+    rating: 4.9,
+    deliveryTime: "2-4 Mins",
+    imageUrl: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=800&auto=format&fit=crop",
+    description: "Epinephrine, antivenoms, intravenous resuscitation fluids & antidote kits.",
+    tags: ["EpiPen", "Antivenom", "Life Support"],
+  },
+  {
+    id: "shop-3",
+    name: "Alpine & Wilderness SAR Unit",
+    category: "hypothermia",
+    rating: 4.8,
+    deliveryTime: "4-6 Mins",
+    imageUrl: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800&auto=format&fit=crop",
+    description: "Active thermal wraps, space blankets, weather bivy bags & avalanche gear.",
+    tags: ["Hypothermia", "Thermal Shield", "Wilderness"],
+  },
+  {
+    id: "shop-4",
+    name: "Disaster Emergency Oxygen & Burn Depot",
+    category: "respiratory",
+    rating: 4.7,
+    deliveryTime: "3-5 Mins",
+    imageUrl: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=800&auto=format&fit=crop",
+    description: "Pure medical O2 cylinders, WaterJel sterile burn dressings & smoke masks.",
+    tags: ["Oxygen", "Burn Care", "Toxic Smoke"],
+  },
+  {
+    id: "shop-5",
+    name: "Tactical Survival & Transponder Base",
+    category: "survival",
+    rating: 4.9,
+    deliveryTime: "4-7 Mins",
+    imageUrl: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=800&auto=format&fit=crop",
+    description: "SOS 406MHz emergency beacons, high-calorie survival rations & water packs.",
+    tags: ["SOS Beacon", "Rations", "GPS Lock"],
+  }
+];
+

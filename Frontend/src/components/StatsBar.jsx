@@ -15,6 +15,7 @@ const StatsBar = ({ progress = 0 }) => {
     { icon: MdTimer,    label: "ETA",      value: eta > 0 ? `${eta}` : "—",  unit: eta > 0 ? "min" : "", color: "text-rose-500" },
   ]
 
+
   return (
     <div className="grid grid-cols-4 gap-2">
       {stats.map((s, i) => (

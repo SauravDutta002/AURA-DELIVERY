@@ -1,59 +1,59 @@
 // ═══════════════════════════════════════════════════════════════
-//  SKYLINK PORTS — Predefined drone landing zones
-//  Users collect their packages from the nearest port
+//  SEARCH & RESCUE TARGET GRIDS — Coordinates for medical drone drops
 // ═══════════════════════════════════════════════════════════════
 
 export const skylinkPorts = [
   {
     id: "SKL-02",
-    name: "SkyLink Drop Zone",
-    address: "Delivery Sector",
+    name: "SAR Sector Alpha — Victim LZ",
+    address: "North Trail Ridge (Coordinates Locked)",
     lat: 30.0133633,
     lng: 78.2210714,
   },
   {
     id: "SKL-03",
-    name: "SkyLink Market",
-    address: "Sector Market, South Wing",
+    name: "SAR Sector Bravo — River Valley",
+    address: "South Bank Gorge Area",
     lat: 30.0125000,
     lng: 78.2200000,
   },
   {
     id: "SKL-04",
-    name: "SkyLink Park",
-    address: "Community Park Entrance",
+    name: "SAR Sector Charlie — Ridge Camp",
+    address: "Mountain Pass Waypoint",
     lat: 30.0155000,
     lng: 78.2195000,
   },
   {
     id: "SKL-05",
-    name: "SkyLink Tower",
-    address: "IT Tower Complex",
+    name: "SAR Sector Delta — Forest Grid 4",
+    address: "East Woodland Clearance",
     lat: 30.0120000,
     lng: 78.2230000,
   },
   {
     id: "SKL-06",
-    name: "SkyLink Station",
-    address: "Railway Crossing, East Side",
+    name: "SAR Sector Echo — Rail Corridor",
+    address: "Perimeter Perimeter Outpost",
     lat: 30.0110000,
     lng: 78.2180000,
   },
   {
     id: "SKL-07",
-    name: "SkyLink Hub",
-    address: "Industrial Area, Block A",
+    name: "SAR Sector Foxtrot — High Peak LZ",
+    address: "Alpine Rescue Sector A",
     lat: 30.0160000,
     lng: 78.2225000,
   },
   {
     id: "SKL-08",
-    name: "SkyLink Square",
-    address: "Shopping Complex, West Gate",
+    name: "SAR Sector Golf — West Ravine",
+    address: "West Canyon Extraction Point",
     lat: 30.0135000,
     lng: 78.2190000,
   },
 ]
+
 
 /**
  * Find the nearest SkyLink Port to a given lat/lng

@@ -1,0 +1,93 @@
+AURA DRONE DELIVERY - SYSTEM DOCUMENTATION
+==========================================
+
+1. OVERVIEW
+-----------
+AURA Delivery is a high-fidelity, interactive web application that simulates a futuristic drone delivery experience. It features a modern, premium UI built with React and Tailwind CSS, utilizing Framer Motion for smooth micro-animations and complex state transitions. The core feature is a real-time map interface that mimics a drone flying from a warehouse to a designated SkyLink Port, complete with tactical Ground Control Station (GCS) monitoring.
+
+2. TECHNOLOGY STACK
+-------------------
+- Frontend Framework: React (Vite)
+- Styling: Tailwind CSS
+- Animations: Framer Motion
+- Maps: React-Leaflet (Leaflet.js)
+- Routing: React Router DOM
+- Icons: react-icons (Feather, Ionicons, FontAwesome)
+- State Management: React Context API (OrderContext)
+
+3. CORE USER FLOW
+-----------------
+The application follows a carefully choreographed sequence designed to feel like a production-ready system:
+
+Step 1: Ordering (Order.jsx)
+- The user browses categories (Grocery, Medical, Tech).
+- Items are added to a global cart managed by `OrderContext`.
+- The user navigates to the Tracking page to initiate delivery.
+
+Step 2: Booking (Tracking.jsx & FloatingInfoCard.jsx)
+- The user's GPS coordinates are fetched (or mocked).
+- The user performs a "Slide to Book" action.
+- The app calculates the closest "SkyLink Port" to the user using the Haversine formula (findNearestPort).
+- A dashed flight path is drawn on the map connecting the drone's origin to the SkyLink Port.
+
+Step 3: Confirmation & Takeoff
+- The user performs a "Slide to Confirm" action.
+- The UI briefly displays an "Assigning Drone..." state for 2 seconds.
+
+Step 4: Flight Simulation (Tracking.jsx)
+- A highly customized `requestAnimationFrame` loop takes over.
+- The drone instantly jumps to 56% progress (simulating it's already en route).
+- The map automatically frames the route perfectly without jittering.
+- The UI displays an exact 19-second ETA countdown, accurately reflecting the simulation time.
+- The drone smoothly animates along the map path for exactly 19 seconds until it hits 99.9% progress at the port.
+
+Step 5: Winch Drop (FloatingInfoCard.jsx)
+- Upon reaching the port, the map stops moving.
+- A custom 7-second "Delivering Package" CSS/Framer-Motion animation plays, depicting a drone hovering while lowering a package via a winch string.
+
+Step 6: Completion
+- The box touches down, and the screen seamlessly transitions to a green "Delivery Arrived!" celebration state.
+
+4. ADMIN GCS DASHBOARD (Admin.jsx)
+----------------------------------
+- Route: `/admin`
+- The Admin panel is designed as a tactical Ground Control Station.
+- It uses dark mode, monospace fonts, and neon green accents.
+- The Leaflet map has a custom CSS filter (`invert(100%) hue-rotate(180deg) sepia(20%)`) applied to transform standard map tiles into a hacker-style radar screen.
+- It calculates the active mission's destination and dynamically draws the flight path so an operator can monitor the same route the user sees.
+
+5. FILE STRUCTURE HIGHLIGHTS
+----------------------------
+- `src/Pages/Tracking.jsx`: Contains the core simulation loop (`requestAnimationFrame`) and unified action handlers.
+- `src/components/FloatingInfoCard.jsx`: A massive state-machine component that handles all the UI transitions (Booking -> Confirming -> Tracking -> Winch Drop -> Complete).
+- `src/components/Map.jsx`: The Leaflet map wrapper. It manages auto-centering logic based strictly on static coordinates (User and Port) to prevent the Leaflet engine from stuttering during animation.
+- `src/data/skyports.js`: The central registry of all available delivery zones and the geometric math used to find the nearest one.
+- `src/context/OrderContext.jsx`: Handles global cart state and the hardcoded order ID.
+
+6. HARDWARE & BACKEND INTEGRATION
+---------------------------------
+The AURA Delivery web platform integrates directly with physical drone hardware (managed via Python scripts like `Skylinkdelivery.py`) using the following architecture:
+
+- Onboard Computer: The drone is equipped with a Raspberry Pi acting as the companion computer.
+- Connectivity: The Pi is connected to the internet via an onboard JioFi module, ensuring persistent 4G/LTE connectivity during flight.
+- Telemetry & Control: The Raspberry Pi communicates locally with the drone's flight controller (via MAVLink/DroneKit) to send commands and retrieve real-time GPS telemetry. It then relays this data back and forth to the AURA Delivery web server.
+- REST API: The Node.js backend exposes REST API routes. The Pi continuously polls or pushes data to these routes to stay in sync with the web app.
+- Fleet Management: Every physical drone is registered with a unique ID (e.g., "DRONE001"). 
+- Order Assignment Flow:
+  1. When a user books an order on the app, the backend searches for a "free" (idle) drone.
+  2. The available drone is officially assigned to the user's Order ID.
+  3. At the warehouse, a human operator sees the assignment, packs the selected items, and physically loads the parcel onto the assigned drone.
+  4. Once loaded, the operator or the app triggers the takeoff sequence.
+  5. The drone autonomously navigates to the designated SkyLink Port based on the GPS coordinates sent from the app, completing the delivery.
+
+  // 50 km radius --> connected to internet RTK 
+
+  // UWB anchors --> for cm level precision
+
+  // UWB reciver --> precision landing  at the delivery location
+
+  // gps --> drone --> db --> backend --> user 
+
+  // drone id drone 001 --> user id --> drone assign --> user live lat long 
+
+  

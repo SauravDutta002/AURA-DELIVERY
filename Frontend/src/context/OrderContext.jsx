@@ -67,25 +67,33 @@ export const OrderProvider = ({ children }) => {
   const totalItems = cart.reduce((s, p) => s + p.qty, 0)
   const totalPrice = cart.reduce((s, p) => s + p.price * p.qty, 0)
 
-  /* ── Place Order (snapshot cart → history) ──────── */
+  /* ── Place SAR Mission (snapshot payload → history) ──────── */
   const placeOrder = useCallback(() => {
-    const orderId = "AURA-233870"
+    const orderId = "SAR-" + Math.floor(100000 + Math.random() * 900000)
     const now = new Date()
+    const defaultMedicalPayload = [
+      { id: 1, name: "Automated External Defibrillator (AED)", qty: 1, price: 0, weight: "1.2kg", category: "trauma", color: "text-red-600" },
+      { id: 2, name: "Combat Hemostatic Tourniquet Pack", qty: 2, price: 0, weight: "240g", category: "trauma", color: "text-rose-600" },
+      { id: 9, name: "Mylar Thermal Space Blanket", qty: 2, price: 0, weight: "110g", category: "hypothermia", color: "text-amber-500" },
+    ]
+    const itemsToSave = cart.length > 0 ? [...cart] : defaultMedicalPayload
+
     const newOrder = {
       id: orderId,
-      items: [...cart],
-      totalPrice: cart.reduce((s, p) => s + p.price * p.qty, 0),
-      totalItems: cart.reduce((s, p) => s + p.qty, 0),
+      items: itemsToSave,
+      totalPrice: itemsToSave.reduce((s, p) => s + (p.price || 0) * p.qty, 0),
+      totalItems: itemsToSave.reduce((s, p) => s + p.qty, 0),
       status: "in_transit",
       createdAt: now.toISOString(),
       date: now.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
     }
-    setOrderItems([...cart])
+    setOrderItems(itemsToSave)
     setCurrentOrderId(orderId)
     setOrderPlaced(true)
     setOrderHistory((prev) => [newOrder, ...prev])
     setCart([])
   }, [cart])
+
 
   const resetOrder = useCallback(() => {
     // Mark current order as delivered in history

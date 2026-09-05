@@ -5,12 +5,14 @@ import Tracking from './Pages/Tracking'
 import Shipments from './Pages/Shipments'
 import OrderDetail from './Pages/OrderDetail'
 import Admin from './Pages/Admin'
+import ShopDetail from './Pages/ShopDetail'
 
 const App = () => {
   return (
     <Routes>
       <Route path='/' element={<Order />} />
       <Route path='/order' element={<Navigate to="/" replace />} />
+      <Route path='/shop/:id' element={<ShopDetail />} />
       <Route path='/track' element={<Tracking />} />
       <Route path='/shipments' element={<Shipments />} />
       <Route path='/order/:id' element={<OrderDetail />} />

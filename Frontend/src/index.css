@@ -202,3 +202,36 @@ body {
   box-shadow: none !important;
   border: 1px solid #e2e8f0 !important;
 }
+
+/* ═══════════════════════════════════════════════════
+   SEARCH & RESCUE / PERSON FOUND HUD ANIMATIONS
+   ═══════════════════════════════════════════════════ */
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes person-beacon-pulse {
+  0% { transform: scale(0.8); opacity: 1; }
+  50% { transform: scale(2.2); opacity: 0.4; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+@keyframes emergency-badge-flash {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.6)); }
+  50% { opacity: 0.85; filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.2)); }
+}
+
+.radar-sweep-cone {
+  animation: radar-sweep 4s linear infinite;
+  transform-origin: center center;
+}
+
+.person-target-beacon {
+  animation: person-beacon-pulse 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+}
+
+.emergency-alert-glow {
+  animation: emergency-badge-flash 1.5s ease-in-out infinite;
+}
+
