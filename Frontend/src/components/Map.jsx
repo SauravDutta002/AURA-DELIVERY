@@ -98,28 +98,30 @@ const RecenterMap = ({ dronePos, userPos, portPos, active, ports }) => {
   const prevActiveRef = useRef(active)
 
   const reframe = useCallback(() => {
-    if (active && userPos && portPos) {
-      // Active tracking: fit user + selected port (drone is always between them)
-      const bounds = L.latLngBounds([userPos, portPos])
+    if (active && dronePos && portPos) {
+      // Active tracking: fit drone + selected port
+      const bounds = L.latLngBounds([dronePos, portPos])
       map.flyToBounds(bounds, { padding: [80, 80], maxZoom: 16, duration: 1.2 })
-    } else if (ports && ports.length > 0 && userPos) {
-      // Before confirm: fit user + all ports
-      const allPoints = ports.map((p) => [p.lat, p.lng])
-      allPoints.push(userPos)
-      const bounds = L.latLngBounds(allPoints)
-      map.flyToBounds(bounds, { padding: [60, 60], maxZoom: 15.5, duration: 1.2 })
-    } else if (userPos) {
-      map.flyTo(userPos, 15, { duration: 1 })
+    } else if (ports && ports.length > 0) {
+      // Before confirm: fit all ports
+      const validPorts = ports.filter((p) => p && typeof p.lat === "number" && typeof p.lng === "number")
+      if (validPorts.length > 0) {
+        const allPoints = validPorts.map((p) => [p.lat, p.lng])
+        const bounds = L.latLngBounds(allPoints)
+        map.flyToBounds(bounds, { padding: [60, 60], maxZoom: 15.5, duration: 1.2 })
+      }
+    } else if (dronePos) {
+      map.flyTo(dronePos, 15, { duration: 1 })
     }
-  }, [map, userPos, portPos, active, ports])
+  }, [map, dronePos, portPos, active, ports])
 
   useEffect(() => {
-    if (prevActiveRef.current && !active && userPos) {
+    if (prevActiveRef.current && !active && dronePos) {
       followRef.current = true
-      map.flyTo(userPos, 15, { duration: 1 })
+      map.flyTo(dronePos, 15, { duration: 1 })
     }
     prevActiveRef.current = active
-  }, [active, userPos, map])
+  }, [active, dronePos, map])
 
   useEffect(() => {
     const pauseFollow = () => {
@@ -135,28 +137,10 @@ const RecenterMap = ({ dronePos, userPos, portPos, active, ports }) => {
   }, [map, reframe])
 
   useEffect(() => {
-    // Only reframe when the static points or state changes, NOT 60x a second on dronePos
     if (followRef.current) reframe()
-  }, [userPos ? userPos.join(',') : '', portPos ? portPos.join(',') : '', active, reframe])
+  }, [portPos ? portPos.join(",") : "", active, reframe])
 
   return null
-}
-
-/* ================= ANIMATED PATH ================= */
-const AnimatedPath = ({ from, to }) => {
-  const dashRef = useCallback((node) => {
-    if (node) {
-      const el = node.getElement()
-      if (el) el.classList.add("animated-path")
-    }
-  }, [])
-
-  return (
-    <>
-      <Polyline positions={[from, to]} pathOptions={{ color: "#000", weight: 6, opacity: 0.1 }} />
-      <Polyline ref={dashRef} positions={[from, to]} pathOptions={{ color: "#111", weight: 2.5, dashArray: "10 14", lineCap: "round" }} />
-    </>
-  )
 }
 
 /* ================= MAIN MAP ================= */
@@ -182,20 +166,6 @@ const MapComponent = ({ droneLocation, userLocation, showPath, ports = [], selec
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-
-      {/* User location */}
-      {userPos && (
-        <Marker position={userPos} icon={userDot}>
-          <Popup className="skylink-popup" closeButton={false} autoPan={false}>
-            <div style={{ textAlign: "center", fontFamily: "Inter, sans-serif", padding: "2px 0" }}>
-              <p style={{ fontSize: "11px", fontWeight: 700, color: "#0f172a", margin: 0 }}>Your Location</p>
-              <p style={{ fontSize: "9px", color: "#64748b", margin: "3px 0 0", fontWeight: 600, fontFamily: "monospace" }}>
-                {userPos[0]?.toFixed(6)}, {userPos[1]?.toFixed(6)}
-              </p>
-            </div>
-          </Popup>
-        </Marker>
-      )}
 
       {/* Drone */}
       {dronePos && <Marker position={dronePos} icon={dronePin} />}
