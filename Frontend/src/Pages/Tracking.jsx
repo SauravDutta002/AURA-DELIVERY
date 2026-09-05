@@ -93,7 +93,7 @@ const Tracking = () => {
   useEffect(() => {
     if (!confirmed || !selectedPort) return
     if (simRef.current || returnRef.current) return // Already launched
-    if (missionPhase !== "idle") return // Only start from idle
+    if (missionPhase === "returning" || missionPhase === "complete") return
 
     setMissionPhase("outbound")
 
